@@ -84,7 +84,7 @@ const scanSyncLoop = async () => {
     const dir = process.argv[3]
     if (!collection) process.exit(-1)
     if (!dir) process.exit(-2)
-    log(`PID ${process.pid}`, collection, true)
+    log(`Scanner for ${collection} started on PID ${process.pid}`, collection, true)
     // Run forever
     while (true) {
         try {
