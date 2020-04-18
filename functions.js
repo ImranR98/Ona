@@ -71,3 +71,10 @@ module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, 
     }
     return result
 }
+module.exports.removeCollectionFromMongo = async (url, db, collection) => { // Remove a collection from a MongoDB database
+    let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
+    let result = null
+    result = await conn.db(db).dropCollection(collection)
+    await conn.close()
+    return result
+}

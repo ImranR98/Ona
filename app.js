@@ -28,6 +28,7 @@ const startScanner = async (collection, dir, newScanner = false) => {
 // Stop a scanner by its collection
 const stopScanner = async (collection) => {
 	await functions.removeByTagArrayFromMongo(variables.url, variables.configdb, variables.dirsCollection, '_id', [collection])
+	await functions.removeCollectionFromMongo(variables.url, variables.db, collection)
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.kill()
 	cleanScanners()
@@ -113,6 +114,12 @@ app.get('/media/content/:collection/:item', (req, res) => {
 		})
 	}
 })
+
+// Get the list of tracked collections
+app.get('/dirs', (req, res) => {
+	res.send(scanners.map(scanner => { return { collection: scanner.collection, dir: scanner.dir } }))
+})
+
 
 // Load existing directory/collection pairs from the DB, then start the server
 functions.getDataFromMongo(variables.url, variables.configdb, variables.dirsCollection).then(results => {
