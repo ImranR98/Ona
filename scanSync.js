@@ -68,12 +68,12 @@ const scanSync = async (collection, dir) => {
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)
-        log(await functions.insertArrayIntoMongo(variables.url, variables.db, collection, filesToAdd), collection)
+        await functions.insertArrayIntoMongo(variables.url, variables.db, collection, filesToAdd)
     }
 
     if (idsToRemove.length > 0) {
         log(`${idsToRemove.length} files to remove...`, collection)
-        log(await functions.removeByIdArrayFromMongo(variables.url, variables.db, collection, idsToRemove), collection)
+        await functions.removeByIdArrayFromMongo(variables.url, variables.db, collection, idsToRemove)
     }
 
 }
