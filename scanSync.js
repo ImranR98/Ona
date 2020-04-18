@@ -55,7 +55,7 @@ const scanSync = async (collection, dir) => {
         return !found
     })
     // Get the metadata for every file to add
-    log(`Getting metadata for ${filesToAdd.length}...`, collection)
+    if (filesToAdd.length > 0) log(`Getting metadata for ${filesToAdd.length}...`, collection)
     filesToAdd = await functions.exiftoolRead(dir, filesToAdd)
 
     filesToAdd.map(file => file._id = file.FileName)
