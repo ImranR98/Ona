@@ -47,3 +47,10 @@ module.exports.getDataFromMongo = async (url, db, collection, tags) => { // Get 
     await conn.close()
     return result
 }
+module.exports.getSingleItemByIdFromMongo = async (url, db, collection, id) => { // Get an item with a specific id in a MongoDB database collection
+    let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
+    let result = null
+    result = (await conn.db(db).collection(collection).find({ _id: id }).toArray())
+    await conn.close()
+    return result.length > 0 ? result[0] : null
+}

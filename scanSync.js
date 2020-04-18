@@ -9,9 +9,9 @@ const functions = require('./functions')
 const variables = require('./variables')
 
 // Write to log file
-const log = (object, collection) => {
+const log = (object, collection, consoleToo = false) => {
     try {
-        console.log(object)
+        if (consoleToo) console.log(object)
         const logFilePath = `${variables.logDir}/scanner-${collection}.txt`
         fs.appendFileSync(logFilePath, `\n\n${new Date().toString()} - ${process.pid}:\n`)
         fs.appendFileSync(logFilePath, JSON.stringify(object, null, '\t'))
@@ -26,7 +26,7 @@ const scanSync = async (collection, dir) => {
     try {
         files = fs.readdirSync(dir).filter(file => !fs.statSync(`${dir}/${file}`).isDirectory())
     } catch (err) {
-        log(err, collection)
+        log(err, collection, true)
         process.exit(-3)
     }
     // Get any ids (file names) for files already in the collection
@@ -34,7 +34,7 @@ const scanSync = async (collection, dir) => {
     try {
         idsInDB = await functions.getIdsFromMongo(variables.url, variables.db, collection)
     } catch (err) {
-        log(err, collection)
+        log(err, collection, true)
         process.exit(-4)
     }
     // At this point, you have all ids already in the DB, and all ids for files in the actual dir
@@ -84,13 +84,13 @@ const scanSyncLoop = async () => {
     const dir = process.argv[3]
     if (!collection) process.exit(-1)
     if (!dir) process.exit(-2)
-    log(`PID ${process.pid}`, collection)
+    log(`PID ${process.pid}`, collection, true)
     // Run forever
     while (true) {
         try {
             await scanSync(collection, dir)
         } catch (err) {
-            log(err, collection)
+            log(err, collection, true)
             process.exit(-9)
         }
         log(`Will pause for ${variables.scanInterval} seconds...`, collection)
