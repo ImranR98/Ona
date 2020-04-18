@@ -62,6 +62,11 @@ const scanSync = async (collection, dir) => {
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
         if (!file) return false
+        if (!file.MIMEType) {
+            log('Below file has no MIMEType and will be ignored:', collection, true)
+            log(file, collection, true)
+            return false
+        }
         return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && !!file.DateTimeOriginal // Must be an image/video and have the DateTimeOriginal tag
     })
 

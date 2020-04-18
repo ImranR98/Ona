@@ -31,6 +31,7 @@ const stopScanner = async (collection) => {
 	await functions.removeCollectionFromMongo(variables.url, variables.db, collection)
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.kill()
+	console.log(`Scanner for ${collection} stopped and deleted.`)
 	cleanScanners()
 }
 
