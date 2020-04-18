@@ -30,7 +30,7 @@ const stopScanner = async (collection) => {
 	await functions.removeByTagArrayFromMongo(variables.url, variables.configdb, variables.dirsCollection, '_id', [collection])
 	await functions.removeCollectionFromMongo(variables.url, variables.db, collection)
 	let target = scanners.find(scanner => scanner.collection == collection)
-	if (target) target.kill()
+	if (target) target.processObj.kill()
 	console.log(`Scanner for ${collection} stopped and deleted.`)
 	cleanScanners()
 }
@@ -41,6 +41,7 @@ app.post('/add', (req, res) => {
 		startScanner(req.body.collection, req.body.dir, true).then(() => {
 			res.send()
 		}).catch((err) => {
+			console.log(err)
 			res.status(500).send()
 		})
 	} else {
@@ -54,6 +55,7 @@ app.post('/remove', (req, res) => {
 		stopScanner(req.body.collection).then(() => {
 			res.send()
 		}).catch((err) => {
+			console.log(err)
 			res.status(500).send()
 		})
 	} else {

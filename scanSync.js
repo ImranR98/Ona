@@ -12,10 +12,10 @@ const variables = require('./variables')
 const log = (object, collection, consoleToo = true) => {
     try {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
-        object = `${new Date().toString()} - ${collection}:  ${object}\n`
+        object = `${new Date().toString()} - ${collection}: ${object}`
         if (consoleToo) console.log(object)
         const logFilePath = `${variables.logDir}/scanner-${collection}.txt`
-        fs.appendFileSync(logFilePath, object)
+        fs.appendFileSync(logFilePath, object + '\n')
     } catch (err) {
         console.log(err)
     }
@@ -58,28 +58,35 @@ const scanSync = async (collection, dir) => {
     // Get the metadata for every file to add
     if (filesToAdd.length > 0) log(`Getting metadata for ${filesToAdd.length} files...`, collection)
     filesToAdd = await functions.exiftoolRead(dir, filesToAdd)
-
+    let originalFilesLength = filesToAdd.length
     filesToAdd.map(file => file._id = file.FileName)
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
         if (!file) return false
         if (!file.MIMEType) {
-            log('File has no MIMEType and will be ignored.', collection)
+            log('File has no MIMEType and will be ignored.', collection, false)
+            log(file, collection, false)
+            return false
+        }
+        if (!file.DateTimeOriginal) {
+            log('File has no DateTimeOriginal and will be ignored.', collection, false)
             log(file, collection, false)
             return false
         }
         return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && !!file.DateTimeOriginal // Must be an image/video and have the DateTimeOriginal tag
     })
-
+    if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : '' }${originalFilesLength-filesToAdd.length} invalid files were ignored.`, collection)
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)
         await functions.insertArrayIntoMongo(variables.url, variables.db, collection, filesToAdd)
+        log(`Added ${filesToAdd.length} files.`, collection)
     }
 
     if (idsToRemove.length > 0) {
         log(`${idsToRemove.length} files to remove...`, collection)
         await functions.removeByTagArrayFromMongo(variables.url, variables.db, collection, '_id', idsToRemove)
+        log(`Removed ${idsToRemove.length} files.`, collection)
     }
 
 }
