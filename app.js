@@ -81,7 +81,15 @@ app.get('/media/single/:collection/:item', (req, res) => {
 		res.status(500).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.url, variables.db, req.params.collection, req.params.item).then(result => {
-			res.send(result)
+			if (result) {
+				functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video')).then(base64Thumbnail => {
+					result.thumbnail = base64Thumbnail
+					res.send(result)
+				}).catch(err => {
+					console.log(err)
+					res.status(500).send()
+				})
+			} else res.send(result)
 		}).catch(err => {
 			console.log(err)
 			res.status(500).send()

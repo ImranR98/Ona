@@ -3,6 +3,7 @@ const exiftool = new (require('exiftool-vendored').ExifTool)({ maxProcs: 16 })
 const sharp = require('sharp') // For generating thumbnails
 const ffmpeg = require('ffmpeg') // For generating vieo thumbnails 
 const mongodb = require('mongodb') // For interacting with the database
+const fs = require('fs')
 
 module.exports.sleep = (s) => new Promise((resolve) => { setTimeout(resolve, s * 1000) }) // Pause the process for a specified number of seconds
 module.exports.tempDir = () => tmp.dirSync().name // Create a temparary directory and return it's path - MAKE SURE it is empty before the process exists
@@ -53,4 +54,20 @@ module.exports.getSingleItemByIdFromMongo = async (url, db, collection, id) => {
     result = (await conn.db(db).collection(collection).find({ _id: id }).toArray())
     await conn.close()
     return result.length > 0 ? result[0] : null
+}
+module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, video = false) => { // Generate a thumbnail for an image/video and return it in a base64 encoded string
+    let result = null
+    let tempDir = tmp.dirSync().name
+    if (video) {
+        await this.getVideoFrame(pathToFile, tempDir, `${fileName}.tmp`)
+        await this.resizeImage(`${tempDir}/${fileName}_1.jpg`, tempDir, `${fileName}.jpg`, width, height)
+        result = new Buffer.from(fs.readFileSync(`${tempDir}/${fileName}.jpg`)).toString('base64')
+        fs.unlinkSync(`${tempDir}/${fileName}_1.jpg`)
+        fs.unlinkSync(`${tempDir}/${fileName}.jpg`)
+    } else {
+        await this.resizeImage(pathToFile, tempDir, fileName, width, height)
+        result = new Buffer.from(fs.readFileSync(`${tempDir}/${fileName}`)).toString('base64')
+        fs.unlinkSync(`${tempDir}/${fileName}`)
+    }
+    return result
 }
