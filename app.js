@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const bodyparser = require('body-parser')
+const fs = require('fs')
 const functions = require('./functions')
 const variables = require('./variables')
 const port = process.env.PORT || 8080
@@ -11,6 +12,19 @@ const node = require('child_process').fork
 
 // An array of all scanSync.js processes
 let scanners = []
+
+// Write to log file
+const log = (object, consoleToo = true) => {
+    try {
+        if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
+        object = `${new Date().toString()}: ${object}`
+        if (consoleToo) console.log(object)
+        const logFilePath = `${variables.logDir}/app.txt`
+        fs.appendFileSync(logFilePath, object + '\n')
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 // Clean the scanners array to remove any dead scanners
 const cleanScanners = () => scanners.filter(scanner => scanner.processObj.exitCode != null)
@@ -31,7 +45,7 @@ const stopScanner = async (collection) => {
 	await functions.removeCollectionFromMongo(variables.url, variables.db, collection)
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.processObj.kill()
-	console.log(`Scanner for ${collection} stopped and deleted.`)
+	log(`Scanner for ${collection} was stopped and deleted.`)
 	cleanScanners()
 }
 
@@ -41,7 +55,7 @@ app.post('/add', (req, res) => {
 		startScanner(req.body.collection, req.body.dir, true).then(() => {
 			res.send()
 		}).catch((err) => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	} else {
@@ -55,7 +69,7 @@ app.post('/remove', (req, res) => {
 		stopScanner(req.body.collection).then(() => {
 			res.send()
 		}).catch((err) => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	} else {
@@ -66,13 +80,13 @@ app.post('/remove', (req, res) => {
 // Get the file name and date for all items in a collection if it is being tracked
 app.get('/media/list/:collection', (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		console.log('Invalid collection.')
+		log('Invalid collection.')
 		res.status(500).send()
 	} else {
 		functions.getDataFromMongo(variables.url, variables.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue']).then(result => {
 			res.send(result)
 		}).catch(err => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	}
@@ -81,7 +95,7 @@ app.get('/media/list/:collection', (req, res) => {
 // Get the all file metadata and thumbnail for a specific item in a collection if it exists
 app.get('/media/single/:collection/:item', (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		console.log('Invalid collection.')
+		log('Invalid collection.')
 		res.status(500).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.url, variables.db, req.params.collection, req.params.item).then(result => {
@@ -90,12 +104,12 @@ app.get('/media/single/:collection/:item', (req, res) => {
 					result.thumbnail = base64Thumbnail
 					res.send(result)
 				}).catch(err => {
-					console.log(err)
+					log(err)
 					res.status(500).send()
 				})
 			} else res.send(result)
 		}).catch(err => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	}
@@ -104,26 +118,26 @@ app.get('/media/single/:collection/:item', (req, res) => {
 // Get the all file metadata and thumbnails for specific items in a collection if it exists
 app.post('/media/many/:collection', (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		console.log('Invalid collection.')
+		log('Invalid collection.')
 		res.status(500).send()
 	} else {
 		functions.getItemsByIdFromMongo(variables.url, variables.db, req.params.collection, req.body.ids).then(results => {
 			if (results) {
 				let promises = []
 				results.forEach(result => promises.push(functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video'))))
-				Promise.all(promises).then((thumbnails, index) => {
-					results.map(result => {
+				Promise.all(promises).then((thumbnails) => {
+					results = results.map((result, index) => {
 						result.thumbnail = thumbnails[index]
 						return result
 					})
 					res.send(results)
 				}).catch(err => {
-					console.log(err)
+					log(err)
 					res.status(500).send()
 				})
-			} else res.send(result)
+			} else res.send(results)
 		}).catch(err => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	}
@@ -132,7 +146,7 @@ app.post('/media/many/:collection', (req, res) => {
 // Get the actual file for a specific item in a collection if it exists
 app.get('/media/content/:collection/:item', (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		console.log('Invalid collection.')
+		log('Invalid collection.')
 		res.status(500).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.url, variables.db, req.params.collection, req.params.item).then(result => {
@@ -140,7 +154,7 @@ app.get('/media/content/:collection/:item', (req, res) => {
 				res.sendFile(result.SourceFile)
 			} else res.send(result)
 		}).catch(err => {
-			console.log(err)
+			log(err)
 			res.status(500).send()
 		})
 	}
@@ -158,9 +172,9 @@ functions.getDataFromMongo(variables.url, variables.configdb, variables.dirsColl
 	results.forEach(({ _id, dir }) => promises.push(startScanner(_id, dir)))
 	Promise.all(promises).then(() => {
 		app.listen(port, () => {
-			console.log(`Listening on port ${port}!`)
+			log(`Started on port ${port}.`)
 		})
 	}).catch(err => {
-		console.log(err)
+		log(err)
 	})
 })
