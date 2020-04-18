@@ -99,6 +99,34 @@ app.get('/media/single/:collection/:item', (req, res) => {
 	}
 })
 
+// Get the all file metadata and thumbnails for specific items in a collection if it exists
+app.post('/media/many/:collection', (req, res) => {
+	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
+		console.log('Invalid collection.')
+		res.status(500).send()
+	} else {
+		functions.getItemsByIdFromMongo(variables.url, variables.db, req.params.collection, req.body.ids).then(results => {
+			if (results) {
+				let promises = []
+				results.forEach(result => promises.push(functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video'))))
+				Promise.all(promises).then((thumbnails, index) => {
+					results.map(result => {
+						result.thumbnail = thumbnails[index]
+						return result
+					})
+					res.send(results)
+				}).catch(err => {
+					console.log(err)
+					res.status(500).send()
+				})
+			} else res.send(result)
+		}).catch(err => {
+			console.log(err)
+			res.status(500).send()
+		})
+	}
+})
+
 // Get the actual file for a specific item in a collection if it exists
 app.get('/media/content/:collection/:item', (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {

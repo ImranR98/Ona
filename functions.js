@@ -28,6 +28,12 @@ module.exports.getIdsFromMongo = async (url, db, collection) => { // Get an arra
     await conn.close()
     return result
 }
+module.exports.getItemsByIdFromMongo = async (url, db, collection, ids) => { // Get an array of items by their ids in a MongoDB database collection
+    let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
+    let result = (await conn.db(db).collection(collection).find({ _id: { $in: ids } }).toArray())
+    await conn.close()
+    return result
+}
 module.exports.removeByTagArrayFromMongo = async (url, db, collection, tag, tagArray) => { // Remove objects using an array of their specific tags from a MongoDB database collection
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
     let opts = {}
