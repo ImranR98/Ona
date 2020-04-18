@@ -62,7 +62,7 @@ const scanSync = async (collection, dir) => {
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
         if (!file) return false
-        return file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')
+        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && !!file.DateTimeOriginal // Must be an image/video and have the DateTimeOriginal tag
     })
 
     // Add and remove based on the results of above
@@ -73,7 +73,7 @@ const scanSync = async (collection, dir) => {
 
     if (idsToRemove.length > 0) {
         log(`${idsToRemove.length} files to remove...`, collection)
-        await functions.removeByIdArrayFromMongo(variables.url, variables.db, collection, idsToRemove)
+        await functions.removeByTagArrayFromMongo(variables.url, variables.db, collection, '_id', idsToRemove)
     }
 
 }

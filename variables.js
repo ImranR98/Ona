@@ -2,7 +2,9 @@
 
 // Don't change these unless you know what you're doing
 module.exports.url = 'mongodb://localhost:27017/' // Database URL (Mongo DB)
-module.exports.db = 'gallery' // Database collection name
+module.exports.db = 'gallery' // Database name
+module.exports.configdb = 'gallery-config' // Database name for configuration
+module.exports.dirsCollection = 'directories'
 
 // Change these as needed
 module.exports.logDir = '/home/imranr/Desktop/logs' // Where to store log files

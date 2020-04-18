@@ -27,19 +27,23 @@ module.exports.getIdsFromMongo = async (url, db, collection) => { // Get an arra
     await conn.close()
     return result
 }
-module.exports.removeByIdArrayFromMongo = async (url, db, collection, idArray) => { // Remove objects using an array of their ids from a MongoDB database collection
+module.exports.removeByTagArrayFromMongo = async (url, db, collection, tag, tagArray) => { // Remove objects using an array of their specific tags from a MongoDB database collection
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
-    let result = (await conn.db(db).collection(collection).deleteMany({
-        _id: {
-            $in: idArray
-        }
-    })).result
+    let opts = {}
+    opts[tag] = {
+        $in: tagArray
+    }
+    let result = (await conn.db(db).collection(collection).deleteMany(opts)).result
     await conn.close()
     return result
 }
-module.exports.getDataFromMongo = async (url, db, collection) => { // Get an arry of ids for all objects in a MongoDB database collection
+module.exports.getDataFromMongo = async (url, db, collection, tags) => { // Get an array of all objects in a MongoDB database collection, returning only specified tags (if specified, else all tags returned)
+    let projection = {}
+    if (tags) tags.forEach(tag => projection[tag] = 1)
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
-    let result = (await conn.db(db).collection(collection).find({}, { projection: { _id: 1 } }).toArray()).map(el => el._id);
+    let result = null
+    if (projection != {}) result = (await conn.db(db).collection(collection).find({}, { projection: projection }).toArray())
+    else result = (await conn.db(db).collection(collection).find({}).toArray())
     await conn.close()
     return result
 }
