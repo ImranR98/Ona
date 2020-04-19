@@ -1,12 +1,12 @@
 // scanSync.js
+// Continuously scan a directory for photos and videos and sync data about those files with the database (logs are saved)
 // This process accepts a directory path and a collection name as command line arguments
-// It scans the directory for photos and videos, then syncs data about those files with the database (logs are saved)
 // MAKE SURE not to start two scanners for the same collection but different directories
 
 // Required modules
-const fs = require('fs')
-const functions = require('./functions')
-const variables = require('./variables')
+const fs = require('fs') // For interacting with the file system
+const functions = require('./functions') // Import the functions file
+const variables = require('./variables') // Import the variables file
 
 // Write to log file
 const log = (object, collection, consoleToo = true) => {
@@ -21,6 +21,7 @@ const log = (object, collection, consoleToo = true) => {
     }
 }
 
+// Runs a single scan
 const scanSync = async (collection, dir) => {
     // Ensure the argument is a valid directory, then get all file names in it
     let files = []
@@ -91,6 +92,7 @@ const scanSync = async (collection, dir) => {
 
 }
 
+// Runs scans on a loop forever (until the process is killed or an error occurs)
 const scanSyncLoop = async () => {
     // Ensure both arguments were given
     const collection = process.argv[2]
@@ -111,4 +113,5 @@ const scanSyncLoop = async () => {
     }
 }
 
+// Start scanning
 scanSyncLoop()
