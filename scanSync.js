@@ -20,7 +20,7 @@ if (fs.existsSync(variables.logDir)) {
 const log = (object, collection, consoleToo = true) => {
     try {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
-        object = `${new Date().toString()} - ${collection}: ${object}`
+        object = `${new Date().toString()}: ${collection}: ${object}`
         if (consoleToo) console.log(object)
         const logFilePath = `${variables.logDir}/scanner-${collection}.txt`
         try {
