@@ -1,6 +1,7 @@
 // app.js
 // Main application process
 // Acts as a server and keeps track of scanners
+// NOTE: The RSA_PUBLIC_KEY, RSA_PRIVATE_KEY, and EXPIRES_IN environment variables must exist in process.env - a .env file can be used for this
 
 // Required modules
 const express = require('express') // For server functions
@@ -14,6 +15,7 @@ const variables = require('./variables') // Import the variables file
 const auth = require('./auth') // Import the auth file
 const port = process.env.PORT || 8080 // Set the port to listen for requests from
 const node = require('child_process').fork // For starting child Node processes
+require('dotenv').config() // Load the contents of a .env file into process.env (used for JWT secrets)
 
 // Use the middleware to accept POST request bodies
 app.use(bodyparser.json())
