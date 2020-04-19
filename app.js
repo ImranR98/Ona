@@ -10,6 +10,7 @@ const bodyparser = require('body-parser') // For parsing the payload from POST r
 const fs = require('fs') // For interacting with the file system
 const jwt = require('jsonwebtoken') // For working with JSON web tokens
 const expressJwt = require('express-jwt') // For working with JSON web tokens
+const path = require('path') // For concatenating paths
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
 const auth = require('./auth') // Import the auth file
@@ -19,6 +20,28 @@ require('dotenv').config() // Load the contents of a .env file into process.env 
 
 // Use the middleware to accept POST request bodies
 app.use(bodyparser.json())
+
+// Ensure client app is accessible
+const clientDir = __dirname + '/client';
+app.use(express.static(clientDir + '/dist/client')); //Set folder where compiled client App is located
+
+//Enables client to access the server from localhost, only needed in local development
+let allowCrossDomain = function (req, res, next) {
+    let valid = false;
+    if (req.header('origin')) {
+        if (req.header('origin').indexOf('localhost') !== -1) {
+            valid = true;
+        }
+    }
+    if (valid) {
+        res.header('Access-Control-Allow-Origin', req.header('origin'));
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+        res.header('Access-Control-Allow-Credentials', 'true');
+    }
+    next();
+}
+app.use(allowCrossDomain);
 
 // Custom String function used in JWT functions below
 String.prototype.replaceAll = function (search, replacement) {
@@ -89,6 +112,8 @@ const stopScanner = async (collection) => {
 	log(`Scanner for ${collection} was stopped and deleted.`)
 	cleanScanners()
 }
+
+// ROUTES START HERE
 
 // Authenticate
 app.post('/auth', (req, res) => {
@@ -281,6 +306,10 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 	res.send(scanners.map(scanner => { return { collection: scanner.collection, dir: scanner.dir } }))
 })
 
+//All other routes are handled by the Angular App which is served here
+app.get('*', (req, res) => {
+    res.sendFile(path.join(clientDir + '/dist/client/index.html'));
+});
 
 // Load existing directory/collection pairs from the DB, then start the server
 functions.getDataFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection).then(results => {
