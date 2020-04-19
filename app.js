@@ -92,10 +92,10 @@ const stopScanner = async (collection) => {
 
 // Authenticate
 app.post('/auth', (req, res) => {
-	log('Attempting auth...', true)
+	log('Attempting auth...')
 	auth.authenticate(req.body.password).then(isValid => {
 		if (isValid) {
-			log('Logged in.', true)
+			log('Logged in.')
 			res.json({
 				jwtToken: jwt.sign({}, process.env.RSA_PRIVATE_KEY.replaceAll('\\n', '\n'), {
 					algorithm: 'RS256',
@@ -103,76 +103,76 @@ app.post('/auth', (req, res) => {
 				})
 			})
 		} else {
-			log('Login failed.', true)
+			log('Login failed.')
 			res.status(500).send('Invalid');
 		}
 	}).catch((err) => {
-		log(err, true);
+		log(err);
 		res.status(500).send(err);
 	})
 })
 
 // Set up password (for first time use)
 app.post('/setup', (req, res) => {
-	log('Attempting to set first time password...', true)
+	log('Attempting to set first time password...')
 	auth.updateAuth(req.body.password).then(result => {
-		log('First time password set.', true)
+		log('First time password set.')
 		res.send()
 	}).catch((err) => {
-		log(err, true);
+		log(err);
 		res.status(500).send(err);
 	})
 })
 
 // Change password
 app.post('/newAuth', checkIfAuthenticated, (req, res) => {
-	log('Attempting to change password...', true)
+	log('Attempting to change password...')
 	auth.updateAuth(req.body.password).then(result => {
-		log('Password changed.', true)
+		log('Password changed.')
 		res.send()
 	}).catch((err) => {
-		log(err, true);
+		log(err);
 		res.status(500).send(err);
 	})
 })
 
 // Delete everything in the database and exit
 app.post('/reset', checkIfAuthenticated, (req, res) => {
-	log('Attempting to reset app...', true)
+	log('Attempting to reset app...')
 	functions.dropDB(variables.url, variables.db).then(result => {
 		functions.dropDB(variables.url, variables.configdb).then(result2 => {
-			log('App was reset and will now exit.', true)
+			log('App was reset and will now exit.')
 			process.exit(0)
 		}).catch((err) => {
-			log(err, true);
+			log(err);
 			res.status(500).send(err);
 		})
 	}).catch((err) => {
-		log(err, true);
+		log(err);
 		res.status(500).send(err);
 	})
 })
 
 // Add a new scanner
 app.post('/add', checkIfAuthenticated, (req, res) => {
-	log('Attempting to add a scanner...', true)
+	log('Attempting to add a scanner...')
 	if (req.body.collection && req.body.dir) {
 		startScanner(req.body.collection, req.body.dir, true).then(() => {
-			log('Scanner added.', true)
+			log('Scanner added.')
 			res.send()
 		}).catch((err) => {
-			log(err, true)
+			log(err)
 			res.status(500).send()
 		})
 	} else {
-		log('Invaid add scanner request - collection and dir properties must exist in POST request body.', true)
+		log('Invaid add scanner request - collection and dir properties must exist in POST request body.')
 		res.status(500).send()
 	}
 })
 
 // Remove a new scanner by its collection name
 app.post('/remove', checkIfAuthenticated, (req, res) => {
-	log('Attempting to remove a scanner...', true)
+	log('Attempting to remove a scanner...')
 	if (req.body.collection) {
 		stopScanner(req.body.collection).then(() => {
 			res.send()
@@ -181,7 +181,7 @@ app.post('/remove', checkIfAuthenticated, (req, res) => {
 			res.status(500).send()
 		})
 	} else {
-		log('Invaid remove scanner request - collection property must exist in POST request body.', true)
+		log('Invaid remove scanner request - collection property must exist in POST request body.')
 		res.status(500).send()
 	}
 })
