@@ -35,14 +35,20 @@ checkIfAuthenticated = expressJwt({
 // An array of all scanSync.js processes
 let scanners = []
 
-// Check if the log directory exists and warn if it doesn't
+// Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
 if (fs.existsSync(variables.logDir)) {
 	if (fs.statSync(variables.logDir).isDirectory()) {
 		logDirExists = true
 	}
 }
-if (!logDirExists) console.log('WARNING: Log directory does not exist so logs will not be saved.')
+if (!logDirExists) {
+	try {
+		fs.mkdirSync(variables.logDir)
+	} catch (err) {
+		console.log('WARNING: Log directory could not be created, so logs will not be saved.')
+	}
+}
 
 // Write to log file if possible, optionally, write to console
 const log = (object, consoleToo = true) => {
