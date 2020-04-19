@@ -8,14 +8,26 @@ const fs = require('fs') // For interacting with the file system
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
 
-// Write to log file
+// Check if the log directory exists
+let logDirExists = false
+if (fs.existsSync(variables.logDir)) {
+    if (fs.statSync(variables.logDir).isDirectory()) {
+        logDirExists = true
+    }
+}
+
+// Write to log file if possible, optionally, write to console
 const log = (object, collection, consoleToo = true) => {
     try {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
         object = `${new Date().toString()} - ${collection}: ${object}`
         if (consoleToo) console.log(object)
         const logFilePath = `${variables.logDir}/scanner-${collection}.txt`
-        fs.appendFileSync(logFilePath, object + '\n')
+        try {
+            if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
+        } catch (err) {
+            console.log(err)
+        }
     } catch (err) {
         console.log(err)
     }
@@ -76,7 +88,7 @@ const scanSync = async (collection, dir) => {
         }
         return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && !!file.DateTimeOriginal // Must be an image/video and have the DateTimeOriginal tag
     })
-    if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : '' }${originalFilesLength-filesToAdd.length} invalid files were ignored.`, collection)
+    if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : ''}${originalFilesLength - filesToAdd.length} invalid files were ignored.`, collection)
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)
