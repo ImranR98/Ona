@@ -8,7 +8,7 @@ const variables = require('./variables') // Import the variables file
 
 // Get the password from the database
 module.exports.getPassword = async () => {
-    let password = await functions.getSingleItemByIdFromMongo(variables.url, variables.configdb, variables.authCollection, 'password')
+    let password = await functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, 'password')
     if (password) password = password.password // Quality readable code
     return password
 }
@@ -21,9 +21,9 @@ module.exports.updateAuth = async (password) => {
     let encryptedPassword = bcrypt.hashSync(password, 10)
     let result = null
     if (!(await this.getPassword())) {
-        result = await functions.insertArrayIntoMongo(variables.url, variables.configdb, variables.authCollection, [{ _id: 'password', password: encryptedPassword }])
+        result = await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, [{ _id: 'password', password: encryptedPassword }])
     } else {
-        result = await functions.updateItemAttributeById(variables.url, variables.configdb, variables.authCollection, 'password', '_id', encryptedPassword)
+        result = await functions.updateItemAttributeById(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, 'password', '_id', encryptedPassword)
     }
     return result
 }

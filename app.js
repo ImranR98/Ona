@@ -22,29 +22,29 @@ app.use(bodyparser.json())
 
 // Custom String function used in JWT functions below
 String.prototype.replaceAll = function (search, replacement) {
-	var target = this;
-	return target.split(search).join(replacement);
-};
+	var target = this
+	return target.split(search).join(replacement)
+}
 
 // Check if a request if from an authenticated user
 checkIfAuthenticated = expressJwt({
 	secret: process.env.RSA_PUBLIC_KEY.replaceAll('\\n', '\n'),
 	requestProperty: 'jwt'
-});
+})
 
 // An array of all scanSync.js processes
 let scanners = []
 
 // Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
-if (fs.existsSync(variables.logDir)) {
-	if (fs.statSync(variables.logDir).isDirectory()) {
+if (fs.existsSync(variables.config.logDir)) {
+	if (fs.statSync(variables.config.logDir).isDirectory()) {
 		logDirExists = true
 	}
 }
 if (!logDirExists) {
 	try {
-		fs.mkdirSync(variables.logDir)
+		fs.mkdirSync(variables.config.logDir)
 	} catch (err) {
 		console.log('WARNING: Log directory could not be created, so logs will not be saved.')
 	}
@@ -56,7 +56,7 @@ const log = (object, consoleToo = true) => {
 		if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
 		object = `${new Date().toString()}: ${object}`
 		if (consoleToo) console.log(object)
-		const logFilePath = `${variables.logDir}/app.txt`
+		const logFilePath = `${variables.config.logDir}/app.txt`
 		try {
 			if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
 		} catch (err) {
@@ -77,13 +77,13 @@ const startScanner = async (collection, dir, newScanner = false) => {
 		dir,
 		processObj: node('./scanSync.js', [collection, dir]).on('exit', cleanScanners)
 	})
-	if (newScanner) await functions.insertArrayIntoMongo(variables.url, variables.configdb, variables.dirsCollection, [{ _id: collection, dir }])
+	if (newScanner) await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, [{ _id: collection, dir }])
 }
 
 // Stop a scanner by its collection
 const stopScanner = async (collection) => {
-	await functions.removeByTagArrayFromMongo(variables.url, variables.configdb, variables.dirsCollection, '_id', [collection])
-	await functions.removeCollectionFromMongo(variables.url, variables.db, collection)
+	await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, '_id', [collection])
+	await functions.removeCollectionFromMongo(variables.constants.url, variables.constants.db, collection)
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.processObj.kill()
 	log(`Scanner for ${collection} was stopped and deleted.`)
@@ -104,11 +104,11 @@ app.post('/auth', (req, res) => {
 			})
 		} else {
 			log('Login failed.')
-			res.status(500).send('Invalid');
+			res.status(500).send()
 		}
 	}).catch((err) => {
-		log(err);
-		res.status(500).send(err);
+		log(err)
+		res.status(500).send(err)
 	})
 })
 
@@ -119,8 +119,8 @@ app.post('/setup', (req, res) => {
 		log('First time password set.')
 		res.send()
 	}).catch((err) => {
-		log(err);
-		res.status(500).send(err);
+		log(err)
+		res.status(500).send(err)
 	})
 })
 
@@ -131,25 +131,32 @@ app.post('/newAuth', checkIfAuthenticated, (req, res) => {
 		log('Password changed.')
 		res.send()
 	}).catch((err) => {
-		log(err);
-		res.status(500).send(err);
+		log(err)
+		res.status(500).send(err)
 	})
 })
 
 // Delete everything in the database and exit
 app.post('/reset', checkIfAuthenticated, (req, res) => {
 	log('Attempting to reset app...')
-	functions.dropDB(variables.url, variables.db).then(result => {
-		functions.dropDB(variables.url, variables.configdb).then(result2 => {
-			log('App was reset and will now exit.')
-			process.exit(0)
+	functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
+		functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
+			let promises = []
+			scanners.forEach(scanner => promises.push(stopScanner(scanner.collection)))
+			Promise.all(promises).then(result3 => {
+				log('App was reset and will now exit.')
+				process.exit(0)
+			}).catch(err => {
+				log('App was reset but all scanners could not be stopped - you may have to stop them and clear the database manually.')
+				process.exit(0)
+			})
 		}).catch((err) => {
-			log(err);
-			res.status(500).send(err);
+			log(err)
+			res.status(500).send(err)
 		})
 	}).catch((err) => {
-		log(err);
-		res.status(500).send(err);
+		log(err)
+		res.status(500).send(err)
 	})
 })
 
@@ -192,7 +199,7 @@ app.get('/media/list/:collection', checkIfAuthenticated, (req, res) => {
 		log('Invalid collection.')
 		res.status(500).send()
 	} else {
-		functions.getDataFromMongo(variables.url, variables.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue']).then(result => {
+		functions.getDataFromMongo(variables.constants.url, variables.constants.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue']).then(result => {
 			res.send(result)
 		}).catch(err => {
 			log(err)
@@ -207,7 +214,7 @@ app.get('/media/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 		log('Invalid collection.')
 		res.status(500).send()
 	} else {
-		functions.getSingleItemByIdFromMongo(variables.url, variables.db, req.params.collection, req.params.item).then(result => {
+		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
 			if (result) {
 				functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video')).then(base64Thumbnail => {
 					result.thumbnail = base64Thumbnail
@@ -230,7 +237,7 @@ app.post('/media/many/:collection', checkIfAuthenticated, (req, res) => {
 		log('Invalid collection.')
 		res.status(500).send()
 	} else {
-		functions.getItemsByIdFromMongo(variables.url, variables.db, req.params.collection, req.body.ids).then(results => {
+		functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.body.ids).then(results => {
 			if (results) {
 				let promises = []
 				results.forEach(result => promises.push(functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video'))))
@@ -258,7 +265,7 @@ app.get('/media/content/:collection/:item', checkIfAuthenticated, (req, res) => 
 		log('Invalid collection.')
 		res.status(500).send()
 	} else {
-		functions.getSingleItemByIdFromMongo(variables.url, variables.db, req.params.collection, req.params.item).then(result => {
+		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
 			if (result) {
 				res.sendFile(result.SourceFile)
 			} else res.send(result)
@@ -276,7 +283,7 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 
 
 // Load existing directory/collection pairs from the DB, then start the server
-functions.getDataFromMongo(variables.url, variables.configdb, variables.dirsCollection).then(results => {
+functions.getDataFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection).then(results => {
 	let promises = []
 	results.forEach(({ _id, dir }) => promises.push(startScanner(_id, dir)))
 	Promise.all(promises).then(() => {

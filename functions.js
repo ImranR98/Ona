@@ -48,7 +48,7 @@ module.exports.updateItemAttributeById = async (url, db, collection, id, attribu
 // Get an array of ids for all objects in a MongoDB database collection
 module.exports.getIdsFromMongo = async (url, db, collection) => {
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
-    let result = (await conn.db(db).collection(collection).find({}, { projection: { _id: 1 } }).toArray()).map(el => el._id);
+    let result = (await conn.db(db).collection(collection).find({}, { projection: { _id: 1 } }).toArray()).map(el => el._id)
     await conn.close()
     return result
 }

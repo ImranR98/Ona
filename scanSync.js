@@ -10,8 +10,8 @@ const variables = require('./variables') // Import the variables file
 
 // Check if the log directory exists
 let logDirExists = false
-if (fs.existsSync(variables.logDir)) {
-    if (fs.statSync(variables.logDir).isDirectory()) {
+if (fs.existsSync(variables.config.logDir)) {
+    if (fs.statSync(variables.config.logDir).isDirectory()) {
         logDirExists = true
     }
 }
@@ -22,7 +22,7 @@ const log = (object, collection, consoleToo = true) => {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
         object = `${new Date().toString()}: ${collection}: ${object}`
         if (consoleToo) console.log(object)
-        const logFilePath = `${variables.logDir}/scanner-${collection}.txt`
+        const logFilePath = `${variables.config.logDir}/scanner-${collection}.txt`
         try {
             if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
         } catch (err) {
@@ -46,7 +46,7 @@ const scanSync = async (collection, dir) => {
     // Get any ids (file names) for files already in the collection
     let idsInDB = []
     try {
-        idsInDB = await functions.getIdsFromMongo(variables.url, variables.db, collection)
+        idsInDB = await functions.getIdsFromMongo(variables.constants.url, variables.constants.db, collection)
     } catch (err) {
         log(err, collection)
         process.exit(-4)
@@ -92,13 +92,13 @@ const scanSync = async (collection, dir) => {
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)
-        await functions.insertArrayIntoMongo(variables.url, variables.db, collection, filesToAdd)
+        await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.db, collection, filesToAdd)
         log(`Added ${filesToAdd.length} files.`, collection)
     }
 
     if (idsToRemove.length > 0) {
         log(`${idsToRemove.length} files to remove...`, collection)
-        await functions.removeByTagArrayFromMongo(variables.url, variables.db, collection, '_id', idsToRemove)
+        await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.db, collection, '_id', idsToRemove)
         log(`Removed ${idsToRemove.length} files.`, collection)
     }
 
@@ -120,8 +120,8 @@ const scanSyncLoop = async () => {
             log(err, collection)
             process.exit(-9)
         }
-        log(`Will pause for ${variables.scanInterval} seconds...`, collection, false)
-        await functions.sleep(variables.scanInterval) // Pause between scans
+        log(`Will pause for ${variables.config.scanInterval} seconds...`, collection, false)
+        await functions.sleep(variables.config.scanInterval) // Pause between scans
     }
 }
 
