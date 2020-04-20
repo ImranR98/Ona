@@ -10,9 +10,11 @@ const variables = require('./variables') // Import the variables file
 
 // Check if the log directory exists
 let logDirExists = false
-if (fs.existsSync(variables.config.logDir)) {
-    if (fs.statSync(variables.config.logDir).isDirectory()) {
-        logDirExists = true
+if (variables.config.logDir) {
+    if (fs.existsSync(variables.config.logDir)) {
+        if (fs.statSync(variables.config.logDir).isDirectory()) {
+            logDirExists = true
+        }
     }
 }
 

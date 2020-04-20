@@ -26,19 +26,19 @@ app.use(express.static(__dirname + '/client/build')) //Set folder where compiled
 
 //Enables client to access the server from localhost, only needed in local development
 let allowCrossDomain = function (req, res, next) {
-    let valid = false
-    if (req.header('origin')) {
-        if (req.header('origin').indexOf('localhost') !== -1) {
-            valid = true
-        }
-    }
-    if (valid) {
-        res.header('Access-Control-Allow-Origin', req.header('origin'))
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
-        res.header('Access-Control-Allow-Credentials', 'true')
-    }
-    next()
+	let valid = false
+	if (req.header('origin')) {
+		if (req.header('origin').indexOf('localhost') !== -1) {
+			valid = true
+		}
+	}
+	if (valid) {
+		res.header('Access-Control-Allow-Origin', req.header('origin'))
+		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+		res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+		res.header('Access-Control-Allow-Credentials', 'true')
+	}
+	next()
 }
 app.use(allowCrossDomain)
 
@@ -59,16 +59,18 @@ let scanners = []
 
 // Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
-if (fs.existsSync(variables.config.logDir)) {
-	if (fs.statSync(variables.config.logDir).isDirectory()) {
-		logDirExists = true
+if (variables.config.logDir) {
+	if (fs.existsSync(variables.config.logDir)) {
+		if (fs.statSync(variables.config.logDir).isDirectory()) {
+			logDirExists = true
+		}
 	}
-}
-if (!logDirExists) {
-	try {
-		fs.mkdirSync(variables.config.logDir)
-	} catch (err) {
-		console.log('WARNING: Log directory could not be created, so logs will not be saved.')
+	if (!logDirExists) {
+		try {
+			fs.mkdirSync(variables.config.logDir)
+		} catch (err) {
+			console.log('WARNING: Log directory could not be created, so logs will not be saved.')
+		}
 	}
 }
 
@@ -307,7 +309,7 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 
 //All other routes are handled by the Angular App which is served here
 app.get('*', (req, res) => {
-    res.sendFile(__dirname + '/client/build/index.html')
+	res.sendFile(__dirname + '/client/build/index.html')
 })
 
 // Load existing directory/collection pairs from the DB, then start the server
