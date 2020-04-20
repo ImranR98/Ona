@@ -22,26 +22,25 @@ require('dotenv').config() // Load the contents of a .env file into process.env 
 app.use(bodyparser.json())
 
 // Ensure client app is accessible
-const clientDir = __dirname + '/client';
-app.use(express.static(clientDir + '/dist/client')); //Set folder where compiled client App is located
+app.use(express.static(__dirname + '/client/build')) //Set folder where compiled client App is located
 
 //Enables client to access the server from localhost, only needed in local development
 let allowCrossDomain = function (req, res, next) {
-    let valid = false;
+    let valid = false
     if (req.header('origin')) {
         if (req.header('origin').indexOf('localhost') !== -1) {
-            valid = true;
+            valid = true
         }
     }
     if (valid) {
-        res.header('Access-Control-Allow-Origin', req.header('origin'));
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-        res.header('Access-Control-Allow-Credentials', 'true');
+        res.header('Access-Control-Allow-Origin', req.header('origin'))
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+        res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+        res.header('Access-Control-Allow-Credentials', 'true')
     }
-    next();
+    next()
 }
-app.use(allowCrossDomain);
+app.use(allowCrossDomain)
 
 // Custom String function used in JWT functions below
 String.prototype.replaceAll = function (search, replacement) {
@@ -308,8 +307,8 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 
 //All other routes are handled by the Angular App which is served here
 app.get('*', (req, res) => {
-    res.sendFile(path.join(clientDir + '/dist/client/index.html'));
-});
+    res.sendFile(__dirname + '/client/build/index.html')
+})
 
 // Load existing directory/collection pairs from the DB, then start the server
 functions.getDataFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection).then(results => {
