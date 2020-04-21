@@ -10,7 +10,6 @@ const bodyparser = require('body-parser') // For parsing the payload from POST r
 const fs = require('fs') // For interacting with the file system
 const jwt = require('jsonwebtoken') // For working with JSON web tokens
 const expressJwt = require('express-jwt') // For working with JSON web tokens
-const path = require('path') // For concatenating paths
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
 const auth = require('./auth') // Import the auth file
@@ -22,7 +21,7 @@ require('dotenv').config() // Load the contents of a .env file into process.env 
 app.use(bodyparser.json())
 
 // Ensure client app is accessible
-app.use(express.static(__dirname + '/client/build')) //Set folder where compiled client App is located
+app.use(express.static(__dirname + '/client/dist/client')) //Set folder where compiled client App is located
 
 //Enables client to access the server from localhost, only needed in local development
 let allowCrossDomain = function (req, res, next) {
@@ -309,7 +308,7 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 
 //All other routes are handled by the Angular App which is served here
 app.get('*', (req, res) => {
-	res.sendFile(__dirname + '/client/build/index.html')
+	res.sendFile(__dirname + '/client/dist/client/index.html')
 })
 
 // Load existing directory/collection pairs from the DB, then start the server
