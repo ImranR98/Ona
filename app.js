@@ -219,7 +219,7 @@ app.post('/remove', checkIfAuthenticated, (req, res) => {
 })
 
 // Get the file name and date for all items in a collection if it is being tracked
-app.get('/media/list/:collection', checkIfAuthenticated, (req, res) => {
+app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
 		res.status(500).send()
@@ -234,7 +234,7 @@ app.get('/media/list/:collection', checkIfAuthenticated, (req, res) => {
 })
 
 // Get the all file metadata and thumbnail for a specific item in a collection if it exists
-app.get('/media/single/:collection/:item', checkIfAuthenticated, (req, res) => {
+app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
 		res.status(500).send()
@@ -257,7 +257,7 @@ app.get('/media/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 })
 
 // Get the all file metadata and thumbnails for specific items in a collection if it exists
-app.post('/media/many/:collection', checkIfAuthenticated, (req, res) => {
+app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
 		res.status(500).send()
@@ -285,7 +285,7 @@ app.post('/media/many/:collection', checkIfAuthenticated, (req, res) => {
 })
 
 // Get the actual file for a specific item in a collection if it exists
-app.get('/media/content/:collection/:item', checkIfAuthenticated, (req, res) => {
+app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
 		res.status(500).send()

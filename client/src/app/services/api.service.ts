@@ -21,4 +21,24 @@ export class ApiService {
   async remove(collection: string): Promise<any> {
     return this.http.post(environment.apiUrl + '/remove', { collection }, this.httpOptions).toPromise()
   }
+
+  async list(collection: string): Promise<any> {
+    return this.http.get(environment.apiUrl + `/list/${collection}`, this.httpOptions).toPromise()
+  }
+
+  async single(collection: string, id: string): Promise<any> {
+    return this.http.get(environment.apiUrl + `/single/${collection}/${id}`, this.httpOptions).toPromise()
+  }
+
+  async many(collection: string, ids: string[]): Promise<any> {
+    return this.http.post(environment.apiUrl + `/many/${collection}`, { ids }, this.httpOptions).toPromise()
+  }
+
+  async content(collection: string, id: string): Promise<any> {
+    return this.http.get(environment.apiUrl + `/content/${collection}/${id}`, this.httpOptions).toPromise()
+  }
+
+  async dirs(): Promise<any> {
+    return this.http.get(environment.apiUrl + `/dirs`, this.httpOptions).toPromise()
+  }
 }
