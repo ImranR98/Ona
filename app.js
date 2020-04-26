@@ -95,6 +95,13 @@ const cleanScanners = () => scanners.filter(scanner => scanner.processObj.exitCo
 
 // Start a scanner
 const startScanner = async (collection, dir, newScanner = false) => {
+	try {
+	if (!fs.existsSync(dir)) throw 'Directory does not exist.'
+	if (!fs.statSync(dir).isDirectory()) throw 'Not a directory.'
+	} catch (err) {
+		if (newScanner) throw err
+		else await stopScanner(collection)
+	}
 	scanners.push({
 		collection,
 		dir,

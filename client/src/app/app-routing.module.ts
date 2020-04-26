@@ -27,7 +27,7 @@ const routes: Routes = [
     canActivate: [AuthService]
   },
   {
-    path: 'gallery',
+    path: 'gallery/:collection',
     component: GalleryComponent,
     canActivate: [AuthService]
   },

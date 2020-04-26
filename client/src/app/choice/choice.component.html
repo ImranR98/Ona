@@ -1,1 +1,21 @@
-<p>choice works!</p>
+<div fxLayout="column" fxLayoutGap="1em">
+    <mat-card fxLayout="column">
+        <mat-card-title>Add Folder</mat-card-title>
+        <form [formGroup]="addForm" (ngSubmit)="add()" fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="1em">
+            <mat-form-field>
+                <input matInput formControlName="collection" placeholder="Name" type="text" required>
+            </mat-form-field>
+            <mat-form-field>
+                <input matInput formControlName="dir" placeholder="Path" type="text" required>
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit">Add</button>
+        </form>
+    </mat-card>
+    <mat-card fxLayout="column">
+        <mat-card-title>Folders</mat-card-title>
+        <mat-card-subtitle *ngIf="dirs.length == 0">No folders added. Add one above.</mat-card-subtitle>
+        <div *ngFor="let dir of dirs">
+            <a routerLink="/gallery/{{dir.collection}}">{{dir.collection}} - {{dir.dir}}</a>
+        </div>
+    </mat-card>
+</div>
