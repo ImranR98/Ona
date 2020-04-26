@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from '../services/api.service';
-import { BehaviorSubject } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
+import { ApiService } from '../services/api.service'
+import { BehaviorSubject } from 'rxjs'
 
 @Component({
   selector: 'app-gallery',
@@ -21,24 +21,24 @@ export class GalleryComponent implements OnInit, OnDestroy {
   subs = []
   thumbnails = []
 
-  listSource = new BehaviorSubject([]);
-  list = this.listSource.asObservable();
+  listSource = new BehaviorSubject([])
+  list = this.listSource.asObservable()
 
-  pageSource = new BehaviorSubject(0);
-  page = this.pageSource.asObservable();
+  pageSource = new BehaviorSubject(0)
+  page = this.pageSource.asObservable()
 
-  selectedSortSource = new BehaviorSubject(0);
-  selectedSort = this.selectedSortSource.asObservable();
+  selectedSortSource = new BehaviorSubject(0)
+  selectedSort = this.selectedSortSource.asObservable()
 
   ngOnInit(): void {
     this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
-      this.collection = params.get('collection');
+      this.collection = params.get('collection')
       if (!this.collection) {
         alert('Folder name not provided.')
         this.router.navigate(['/choice'])
       } else {
         this.apiService.list(this.collection).then(data => {
-          this.listSource.next(data);
+          this.listSource.next(data)
         }).catch(err => {
           alert(JSON.stringify(err))
         })
@@ -53,7 +53,6 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }))
 
     this.subs.push(this.list.subscribe(list => {
-      console.log(list.filter(item => item._id.indexOf('.jpg') < 0))
       this.updateThumbnails()
     }))
 

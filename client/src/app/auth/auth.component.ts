@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core'
+import { AuthService } from '../services/auth.service'
+import { Router } from '@angular/router'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
   selector: 'app-auth',
@@ -14,7 +14,7 @@ export class AuthComponent implements OnInit {
 
   passwordForm = new FormGroup({
     password: new FormControl('', Validators.required)
-  });
+  })
 
   isFirstTime: boolean = true
 

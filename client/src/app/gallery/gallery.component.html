@@ -3,7 +3,7 @@
     <mat-card-subtitle>Page {{pageSource.value+1}} of {{maxPages}}</mat-card-subtitle>
     <div fxLayout="column" fxLayoutGap="1em">
         <div fxLayout="row wrap" fxLayoutGap="1em"><span>Jump to page:</span>
-            <a *ngFor="let item of [].constructor(10); let i = index" (click)="toPage(i)" style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
+            <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)" style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
         </div>
         <mat-grid-list cols="15" rowHeight="1:1" fxHide fxShow.gt-lg>
             <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column"
@@ -76,7 +76,7 @@
         --
     </button>
     <button mat-fab color="primary" matTooltip="Next Page" aria-label="Next Page" (click)="next()"
-        *ngIf="pageSource.value &lt; maxPages">
+        *ngIf="pageSource.value &lt; maxPages - 1">
         ++
     </button>
 </div>

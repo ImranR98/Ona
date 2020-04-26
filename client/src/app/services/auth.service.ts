@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from 'src/environments/environment'
 import { Observable } from 'rxjs'
@@ -55,33 +55,33 @@ export class AuthService {
 
   // Used for HTTPInterceptor
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
-    return this.ifLoggedIn(true);
+    return this.ifLoggedIn(true)
   }
 
   // Return true if a valid JWT exists and is not expired
   ifLoggedIn(redirect: boolean) {
     let valid: boolean = (moment().isBefore(this.getJWTExpiration()))
     if (!valid) {
-      this.logout(redirect);
+      this.logout(redirect)
     }
-    return valid;
+    return valid
   }
 
   // Clear the JWT and redirect to home page
   logout(redirect: boolean = true) {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem("jwt_token_decoded");
+    localStorage.removeItem('jwt_token')
+    localStorage.removeItem("jwt_token_decoded")
     if (redirect) {
-      this.router.navigate(['/auth']);
+      this.router.navigate(['/auth'])
     }
   }
 
   // Get the time JWT expires
   getJWTExpiration() {
     if (JSON.parse(localStorage.getItem("jwt_token_decoded"))) {
-      return moment.unix(JSON.parse(localStorage.getItem("jwt_token_decoded")).exp);
+      return moment.unix(JSON.parse(localStorage.getItem("jwt_token_decoded")).exp)
     } else {
-      return null;
+      return null
     }
   }
 }
