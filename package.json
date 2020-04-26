@@ -10,6 +10,8 @@
   "author": "Imran Remtulla",
   "license": "ISC",
   "dependencies": {
+    "@angular/cdk": "^9.2.1",
+    "@angular/flex-layout": "^9.0.0-beta.29",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",

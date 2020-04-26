@@ -1,1 +1,12 @@
-<p>auth works!</p>
+<div>
+    <mat-card fxLayout="column">
+        <mat-card-title *ngIf="isFirstTime">Set up a password</mat-card-title>
+        <mat-card-subtitle *ngIf="isFirstTime">Must be over 15 characters - the longer, the better.</mat-card-subtitle>
+        <mat-card-title *ngIf="!isFirstTime">Enter your password</mat-card-title>
+        <form [formGroup]="passwordForm" (ngSubmit)="submit()">
+            <mat-form-field>
+                <input matInput formControlName="password" placeholder="Password" type="password" required>
+            </mat-form-field>
+        </form>
+    </mat-card>
+</div>

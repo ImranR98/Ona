@@ -149,10 +149,20 @@ app.post('/setup', (req, res) => {
 	})
 })
 
+// Check if a password exists
+app.get('/isFirstTime', (req, res) => {
+	auth.getPassword().then(password => {
+		res.send(!password)
+	}).catch((err) => {
+		log(err)
+		res.status(500).send(err)
+	})
+})
+
 // Change password
 app.post('/newAuth', checkIfAuthenticated, (req, res) => {
 	log('Attempting to change password...')
-	auth.updateAuth(req.body.password).then(result => {
+	auth.updateAuth(req.body.password, true).then(result => {
 		log('Password changed.')
 		res.send()
 	}).catch((err) => {

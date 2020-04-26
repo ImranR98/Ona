@@ -28,6 +28,12 @@ export class AuthService {
     return this.http.post(environment.apiUrl + '/newAuth', { password }, this.httpOptions).toPromise()
   }
 
+  // Attempt to change password (server rejects this if user is not logged in (JWT doesn't exist))
+  async isFirstTime(): Promise<boolean> {
+    let result = await this.http.get(environment.apiUrl + '/isFirstTime', this.httpOptions).toPromise()
+    return !!result
+  }
+
   // Validate the password and get a JSON Web Token to authenticate future requests
   async auth(password: string): Promise<boolean> {
     let response: any = await this.http.post(environment.apiUrl + '/auth', { password }, this.httpOptions).toPromise()
