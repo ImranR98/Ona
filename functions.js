@@ -6,9 +6,10 @@
 const tmp = require('tmp') // For temp. directories when generating thumbnails
 const ExifTool = require('exiftool-vendored').ExifTool // For interacting with exiftool
 const sharp = require('sharp') // For generating thumbnails
-const ffmpeg = require('ffmpeg') // For generating vieo thumbnails 
+const ffmpeg = require('ffmpeg-static') // For generating vieo thumbnails 
 const mongodb = require('mongodb') // For interacting with the database
 const fs = require('fs') // For interacting with the file system
+const cmd = require('child_process').execSync // For executing OS terminal commands
 
 // Pause the process for a specified number of seconds
 module.exports.sleep = (s) => new Promise((resolve) => { setTimeout(resolve, s * 1000) })
@@ -17,7 +18,7 @@ module.exports.tempDir = () => tmp.dirSync().name
 // Resize an image and save at a new path
 module.exports.resizeImage = async (path, destDir, destName, width, height) => await sharp(path).resize(width, height).toFile(`${destDir}/${destName}`)
 // Extract the first frame froma video and save it
-module.exports.getVideoFrame = async (path, destDir, destName) => (await new ffmpeg(path)).fnExtractFrameToJPG(destDir, { file_name: destName, number: 1 })
+module.exports.getVideoFrame = async (path, destDir, destName) => cmd(`${ffmpeg} -i '${path}' -frames:v 1 '${destDir}/${destName}' -y`).toString()
 // Read a file's metadata with exiftool
 module.exports.exiftoolRead = async (dir, files) => {
     let exiftool = new ExifTool({ maxProcs: 16 })
@@ -110,7 +111,7 @@ module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, 
     let result = null
     let tempDir = tmp.dirSync().name
     if (video) {
-        await this.getVideoFrame(pathToFile, tempDir, `${fileName}.tmp`)
+        await this.getVideoFrame(pathToFile, tempDir, `${fileName}_1.jpg`)
         await this.resizeImage(`${tempDir}/${fileName}_1.jpg`, tempDir, `${fileName}.jpg`, width, height)
         result = new Buffer.from(fs.readFileSync(`${tempDir}/${fileName}.jpg`)).toString('base64')
         fs.unlinkSync(`${tempDir}/${fileName}_1.jpg`)

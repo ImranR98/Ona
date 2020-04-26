@@ -19,7 +19,7 @@ export class ChoiceComponent implements OnInit {
   dirs = []
 
   ngOnInit(): void {
-    this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(err.toString()))
+    this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(JSON.stringify(err)))
   }
 
   add() {

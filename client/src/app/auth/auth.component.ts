@@ -22,7 +22,7 @@ export class AuthComponent implements OnInit {
     if (this.authService.ifLoggedIn(false)) this.router.navigate(['/choice'])
     this.authService.isFirstTime().then(res => {
       this.isFirstTime = res
-    }).catch(err => alert(err.toString()))
+    }).catch(err => alert(JSON.stringify(err)))
   }
 
   submit() {

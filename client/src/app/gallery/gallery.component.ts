@@ -40,7 +40,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
         this.apiService.list(this.collection).then(data => {
           this.listSource.next(data);
         }).catch(err => {
-          alert(err.toString())
+          alert(JSON.stringify(err))
         })
       }
     }))
@@ -83,7 +83,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
       if (endIndex > listMaxIndex) endIndex = listMaxIndex
       this.apiService.many(this.collection, this.listSource.value.map(el => el._id).slice(startIndex, endIndex + 1)).then(res => {
         this.thumbnails = res
-      }).catch(err => alert(err.toString()))
+      }).catch(err => alert(JSON.stringify(err)))
     }
   }
 
