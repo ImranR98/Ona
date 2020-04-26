@@ -1,6 +1,9 @@
 # Gallery15
 Simple, self hosted, single user, web based photo gallery.
-> This is a work in progress and not functional yet. Mainly, frontend development remains.
+> This is a work in progress and not functional yet.
+> TODO:
+> - Implement actual content playback on frontend.
+> - Implement change password and reset app on frontend.
 
 Scan specific directories on your server for photos and videos and display them on a web page in a simple, scrollable interface, sorted by date taken. 
 
