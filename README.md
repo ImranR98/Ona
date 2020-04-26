@@ -5,8 +5,9 @@ Simple, self hosted, single user, web based photo gallery.
 > TODO:
 > - Implement actual content playback on frontend.
 > - Implement change password and reset app on frontend.
+> - Implement different sort settings on frontend.
 
-Scan specific directories on your server for photos and videos and display them on a web page in a simple, paginated interface, sorted by date taken. 
+Scan specific directories on your server for photos and videos and display them on a web page in a simple paginated interface. 
 
 ## Requirements
 - Node.js
