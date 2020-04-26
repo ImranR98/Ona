@@ -23,7 +23,7 @@ const log = (object, collection, consoleToo = true) => {
     try {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
         object = `${new Date().toString()}: ${collection}: ${object}`
-        if (consoleToo) console.log(object)
+        if (consoleToo || variables.config.consoleLogEverything) console.log(object)
         const logFilePath = `${variables.config.logDir}/scanner-${collection}.txt`
         try {
             if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
@@ -83,12 +83,21 @@ const scanSync = async (collection, dir) => {
             log(file, collection, false)
             return false
         }
-        if (!file.DateTimeOriginal) {
-            log('File has no DateTimeOriginal and will be ignored.', collection, false)
+        if (!file.DateTimeOriginal && !file.CreateDate) {
+            log('File has no DateTimeOriginal or CreateDate and will be ignored.', collection, false)
             log(file, collection, false)
             return false
         }
-        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && !!file.DateTimeOriginal // Must be an image/video and have the DateTimeOriginal tag
+        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && (file.DateTimeOriginal || file.CreateDate) // Must be an image/video and have the DateTimeOriginal or CreateDate tags
+    })
+    // For files that have no DateTimeOriginal (but have CreateDate), CreateDate is saved as DateTimeOriginal
+    filesToAdd = filesToAdd.map(file => {
+        if (!file.DateTimeOriginal) {
+            file.DateTimeOriginal = file.CreateDate
+            log('File has no DateTimeOriginal so CreateDate will be used.', collection, false)
+            log(file, collection, false)
+        }
+        return file
     })
     if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : ''}${originalFilesLength - filesToAdd.length} invalid files were ignored.`, collection)
     // Add and remove based on the results of above

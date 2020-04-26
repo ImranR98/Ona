@@ -78,7 +78,7 @@ const log = (object, consoleToo = true) => {
 	try {
 		if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
 		object = `${new Date().toString()}: ${object}`
-		if (consoleToo) console.log(object)
+		if (consoleToo || variables.config.consoleLogEverything) console.log(object)
 		const logFilePath = `${variables.config.logDir}/app.txt`
 		try {
 			if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
