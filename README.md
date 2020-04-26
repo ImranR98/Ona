@@ -1,6 +1,7 @@
 # Gallery15
 Simple, self hosted, single user, web based photo gallery.
 > This is a work in progress and not functional yet.
+> 
 > TODO:
 > - Implement actual content playback on frontend.
 > - Implement change password and reset app on frontend.
@@ -10,6 +11,7 @@ Scan specific directories on your server for photos and videos and display them 
 ## Requirements
 - Node.js
 - MongoDB
+- ffmpeg
 
 ### Configuration
 An RSA public/private key pair is needed for user sessions, along with a duration, in seconds, that each session lasts. These are needed as environment variables and can be defined in a .env file in the root directory.
