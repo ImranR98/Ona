@@ -34,8 +34,10 @@ export class ApiService {
     return this.http.post(environment.apiUrl + `/many/${collection}`, { ids }, this.httpOptions).toPromise()
   }
 
-  async content(collection: string, id: string): Promise<any> {
-    return this.http.get(environment.apiUrl + `/content/${collection}/${id}`, this.httpOptions).toPromise()
+  async content(collection: string, id: string): Promise<ArrayBuffer> {
+    let opts: any = this.httpOptions
+    opts.responseType = 'blob'
+    return await this.http.get(environment.apiUrl + `/content/${collection}/${id}`, opts).toPromise()
   }
 
   async dirs(): Promise<any> {

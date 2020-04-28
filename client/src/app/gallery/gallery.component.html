@@ -22,7 +22,7 @@
                 matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}">
                 <div fxFill [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center">
+                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Play
                     </div>
@@ -34,7 +34,7 @@
                 matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}">
                 <div fxFill [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center">
+                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Play
                     </div>
@@ -46,7 +46,7 @@
                 matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}">
                 <div fxFill [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center">
+                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Play
                     </div>
@@ -58,7 +58,7 @@
                 matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}">
                 <div fxFill [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center">
+                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Play
                     </div>
@@ -70,7 +70,7 @@
                 matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}">
                 <div fxFill [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center">
+                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Play
                     </div>

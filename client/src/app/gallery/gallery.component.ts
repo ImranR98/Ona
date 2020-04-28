@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ApiService } from '../services/api.service'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subscription } from 'rxjs'
 import { ErrorService } from '../services/error.service'
 import { FormGroup, FormControl } from '@angular/forms'
 
@@ -24,7 +24,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   pageSize = 50
   sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
 
-  subs = []
+  subs: Subscription[] = []
   thumbnails = []
 
   listSource = new BehaviorSubject([])
@@ -56,16 +56,19 @@ export class GalleryComponent implements OnInit, OnDestroy {
           this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data))
         }).catch(err => {
           alert(this.errorService.stringifyError(err))
+          this.router.navigate(['/choice'])
         })
       }
     }))
   }
 
   sortList(selectedSort: number, list) {
-    if (selectedSort == 0) return list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
-    if (selectedSort == 1) return list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
-    if (selectedSort == 2) return list.sort((a, b) => (b._id).localeCompare(a._id))
-    if (selectedSort == 3) return list.sort((a, b) => (a._id).localeCompare(b._id))
+    if (list) {
+      if (selectedSort == 0) return list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
+      if (selectedSort == 1) return list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
+      if (selectedSort == 2) return list.sort((a, b) => (b._id).localeCompare(a._id))
+      if (selectedSort == 3) return list.sort((a, b) => (a._id).localeCompare(b._id))
+    }
     return list
   }
 

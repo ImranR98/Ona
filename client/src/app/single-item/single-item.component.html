@@ -1,0 +1,12 @@
+<mat-card fxLayout="column">
+    <mat-card-title style="word-wrap: break-word">{{collection}} - {{itemID}}</mat-card-title>
+    <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
+    <div *ngIf="itemSource.value">
+        <img *ngIf="itemSource.value.MIMEType.startsWith('image')" mat-card-image [src]="imageSrc"
+            style="height: 100%;">
+        <video [src]="imageSrc" *ngIf="itemSource.value.MIMEType.startsWith('video')"
+            style="width: 100% !important; height: auto !important;" controls>
+            Your browser does not support the video tag.
+        </video>
+    </div>
+</mat-card>

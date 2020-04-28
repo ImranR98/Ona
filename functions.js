@@ -18,7 +18,7 @@ module.exports.tempDir = () => tmp.dirSync().name
 // Resize an image and save at a new path
 module.exports.resizeImage = async (path, destDir, destName, width, height) => await sharp(path).resize(width, height).toFile(`${destDir}/${destName}`)
 // Extract the first frame froma video and save it
-module.exports.getVideoFrame = async (path, destDir, destName) => cmd(`${ffmpeg} -i '${path}' -frames:v 1 '${destDir}/${destName}' -y`).toString()
+module.exports.getVideoFrame = async (path, destDir, destName) => cmd(`${ffmpeg} -i '${path}' -frames:v 1 '${destDir}/${destName}' -y`, { stdio: 'pipe' }).toString()
 // Read a file's metadata with exiftool
 module.exports.exiftoolRead = async (dir, files) => {
     let exiftool = new ExifTool({ maxProcs: 16 })

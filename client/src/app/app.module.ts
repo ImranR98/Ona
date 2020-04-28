@@ -20,8 +20,9 @@ import { MatGridListModule } from '@angular/material/grid-list'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatSelectModule } from '@angular/material/select'
-import { HeaderComponent } from './header/header.component';
+import { HeaderComponent } from './header/header.component'
 import { ConfigComponent } from './config/config.component'
+import { SingleItemComponent } from './single-item/single-item.component'
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { ConfigComponent } from './config/config.component'
     GalleryComponent,
     Eror404Component,
     HeaderComponent,
-    ConfigComponent
+    ConfigComponent,
+    SingleItemComponent
   ],
   imports: [
     BrowserModule,
