@@ -136,7 +136,7 @@ app.post('/auth', (req, res) => {
 			})
 		} else {
 			log('Login failed.')
-			res.status(500).send()
+			res.status(401).send()
 		}
 	}).catch((err) => {
 		log(err)
@@ -169,7 +169,7 @@ app.get('/isFirstTime', (req, res) => {
 // Change password
 app.post('/newAuth', checkIfAuthenticated, (req, res) => {
 	log('Attempting to change password...')
-	auth.updateAuth(req.body.password, true).then(result => {
+	auth.updateAuth(req.body.password, false).then(result => {
 		log('Password changed.')
 		res.send()
 	}).catch((err) => {
@@ -211,11 +211,11 @@ app.post('/add', checkIfAuthenticated, (req, res) => {
 			res.send()
 		}).catch((err) => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	} else {
 		log('Invaid add scanner request - collection and dir properties must exist in POST request body.')
-		res.status(500).send()
+		res.status(400).send()
 	}
 })
 
@@ -227,11 +227,11 @@ app.post('/remove', checkIfAuthenticated, (req, res) => {
 			res.send()
 		}).catch((err) => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	} else {
 		log('Invaid remove scanner request - collection property must exist in POST request body.')
-		res.status(500).send()
+		res.status(400).send()
 	}
 })
 
@@ -239,13 +239,13 @@ app.post('/remove', checkIfAuthenticated, (req, res) => {
 app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
-		res.status(500).send()
+		res.status(400).send()
 	} else {
 		functions.getDataFromMongo(variables.constants.url, variables.constants.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue']).then(result => {
 			res.send(result)
 		}).catch(err => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	}
 })
@@ -254,7 +254,7 @@ app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
-		res.status(500).send()
+		res.status(400).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
 			if (result) {
@@ -263,12 +263,12 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 					res.send(result)
 				}).catch(err => {
 					log(err)
-					res.status(500).send()
+					res.status(500).send(err)
 				})
 			} else res.send(result)
 		}).catch(err => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	}
 })
@@ -277,7 +277,7 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
-		res.status(500).send()
+		res.status(400).send()
 	} else {
 		functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.body.ids).then(results => {
 			if (results) {
@@ -291,12 +291,12 @@ app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 					res.send(results)
 				}).catch(err => {
 					log(err)
-					res.status(500).send()
+					res.status(500).send(err)
 				})
 			} else res.send(results)
 		}).catch(err => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	}
 })
@@ -305,7 +305,7 @@ app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		log('Invalid collection.')
-		res.status(500).send()
+		res.status(400).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
 			if (result) {
@@ -313,7 +313,7 @@ app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 			} else res.send(result)
 		}).catch(err => {
 			log(err)
-			res.status(500).send()
+			res.status(500).send(err)
 		})
 	}
 })

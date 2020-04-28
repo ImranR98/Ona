@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { AuthService } from '../services/auth.service'
 import { Router } from '@angular/router'
 import { FormGroup, FormControl, Validators } from '@angular/forms'
+import { ErrorService } from '../services/error.service'
 
 @Component({
   selector: 'app-auth',
@@ -10,7 +11,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms'
 })
 export class AuthComponent implements OnInit {
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private errorService: ErrorService) { }
 
   passwordForm = new FormGroup({
     password: new FormControl('', Validators.required)
@@ -22,7 +23,7 @@ export class AuthComponent implements OnInit {
     if (this.authService.ifLoggedIn(false)) this.router.navigate(['/choice'])
     this.authService.isFirstTime().then(res => {
       this.isFirstTime = res
-    }).catch(err => alert(JSON.stringify(err)))
+    }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
   submit() {
@@ -31,8 +32,7 @@ export class AuthComponent implements OnInit {
       if (password.length > 15) {
         this.authService.setup(password).then(() => {
           this.isFirstTime = false
-          alert('Password was set.')
-        }).catch(err => alert(err))
+        }).catch(err => alert(this.errorService.stringifyError(err)))
       } else {
         alert('Password must be longer than 15 characters.')
       }
@@ -40,8 +40,9 @@ export class AuthComponent implements OnInit {
       this.authService.auth(password).then(() => {
         this.isFirstTime = false
         this.router.navigate(['/choice'])
-      }).catch(err => alert(err))
+      }).catch(err => {
+        alert(this.errorService.stringifyError(err))
+      })
     }
   }
-
 }

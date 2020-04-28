@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ApiService } from '../services/api.service'
 import { BehaviorSubject } from 'rxjs'
+import { ErrorService } from '../services/error.service'
+import { FormGroup, FormControl } from '@angular/forms'
 
 @Component({
   selector: 'app-gallery',
@@ -10,13 +12,17 @@ import { BehaviorSubject } from 'rxjs'
 })
 export class GalleryComponent implements OnInit, OnDestroy {
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService) { }
+  constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService, private errorService: ErrorService) { }
+
+  sortForm = new FormGroup({
+    sort: new FormControl(0)
+  })
 
   collection
 
   maxPages = 0
   pageSize = 50
-  sorts = ['Date (Descending)', 'Date (Ascending)', 'Name (Descending)', 'Name (Ascending)']
+  sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
 
   subs = []
   thumbnails = []
@@ -27,30 +33,10 @@ export class GalleryComponent implements OnInit, OnDestroy {
   pageSource = new BehaviorSubject(0)
   page = this.pageSource.asObservable()
 
-  selectedSortSource = new BehaviorSubject(0)
-  selectedSort = this.selectedSortSource.asObservable()
-
   ngOnInit(): void {
-    this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
-      this.collection = params.get('collection')
-      if (!this.collection) {
-        alert('Folder name not provided.')
-        this.router.navigate(['/choice'])
-      } else {
-        this.apiService.list(this.collection).then(data => {
-          this.listSource.next(data)
-        }).catch(err => {
-          alert(JSON.stringify(err))
-        })
-      }
-    }))
-
-    this.subs.push(this.selectedSort.subscribe(selectedSort => {
-      if (selectedSort == 0) this.listSource.next(this.listSource.value.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue)))
-      if (selectedSort == 1) this.listSource.next(this.listSource.value.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue)))
-      if (selectedSort == 2) this.listSource.next(this.listSource.value.sort((a, b) => (b._id).localeCompare(a._id)))
-      if (selectedSort == 3) this.listSource.next(this.listSource.value.sort((a, b) => (a._id).localeCompare(b._id)))
-    }))
+    this.sortForm.controls['sort'].valueChanges.subscribe(selectedSort => {
+      this.listSource.next(this.sortList(selectedSort, this.listSource.value))
+    })
 
     this.subs.push(this.list.subscribe(list => {
       this.updateThumbnails()
@@ -59,6 +45,28 @@ export class GalleryComponent implements OnInit, OnDestroy {
     this.subs.push(this.page.subscribe(page => {
       this.updateThumbnails()
     }))
+
+    this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
+      this.collection = params.get('collection')
+      if (!this.collection) {
+        alert('Folder name not provided.')
+        this.router.navigate(['/choice'])
+      } else {
+        this.apiService.list(this.collection).then(data => {
+          this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data))
+        }).catch(err => {
+          alert(this.errorService.stringifyError(err))
+        })
+      }
+    }))
+  }
+
+  sortList(selectedSort: number, list) {
+    if (selectedSort == 0) return list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
+    if (selectedSort == 1) return list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
+    if (selectedSort == 2) return list.sort((a, b) => (b._id).localeCompare(a._id))
+    if (selectedSort == 3) return list.sort((a, b) => (a._id).localeCompare(b._id))
+    return list
   }
 
   next() {
@@ -82,7 +90,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
       if (endIndex > listMaxIndex) endIndex = listMaxIndex
       this.apiService.many(this.collection, this.listSource.value.map(el => el._id).slice(startIndex, endIndex + 1)).then(res => {
         this.thumbnails = res
-      }).catch(err => alert(JSON.stringify(err)))
+      }).catch(err => alert(this.errorService.stringifyError(err)))
     }
   }
 

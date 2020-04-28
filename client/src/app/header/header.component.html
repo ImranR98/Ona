@@ -1,0 +1,24 @@
+<mat-toolbar fxShow fxHide.lt-sm fxLayout="row" fxLayoutAlign="space-between center">
+    <span>Gallery15</span>
+    <div fxLayout="row wrap" fxLayoutGap="1em" *ngIf="isLoggedIn">
+        <button mat-raised-button color="primary" routerLink="/choice"
+            routerLinkActive="font-weight-bold">Folders</button>
+        <button mat-raised-button color="accent" routerLink="/config"
+            routerLinkActive="font-weight-bold">Config</button>
+        <button mat-raised-button color="warn" (click)="logOut()">Exit</button>
+    </div>
+</mat-toolbar>
+<mat-toolbar fxHide fxShow.lt-sm fxLayout="column">
+    <mat-toolbar-row>
+        <span>Gallery15</span>
+    </mat-toolbar-row>
+    <mat-toolbar-row *ngIf="isLoggedIn">
+        <div fxLayout="row wrap" fxLayoutGap="1em">
+            <button mat-raised-button color="primary" routerLink="/choice"
+                routerLinkActive="font-weight-bold">Folders</button>
+            <button mat-raised-button color="accent" routerLink="/config"
+                routerLinkActive="font-weight-bold">Config</button>
+            <button mat-raised-button color="warn" (click)="logOut()">Exit</button>
+        </div>
+    </mat-toolbar-row>
+</mat-toolbar>

@@ -17,16 +17,16 @@ module.exports.getPassword = async () => {
 module.exports.authenticate = async (password) => bcrypt.compareSync(password, await this.getPassword())
 
 // Update the password or add it if one doesn't exist (if set to true, onlyNew rejects the password if one exists)
-module.exports.updateAuth = async (password, onlyNew = false) => {
+module.exports.updateAuth = async (password, onlyNew = true) => {
     let encryptedPassword = bcrypt.hashSync(password, 10)
     let result = null
     if (!(await this.getPassword())) {
         result = await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, [{ _id: 'password', password: encryptedPassword }])
     } else {
         if (!onlyNew) {
-            result = await functions.updateItemAttributeById(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, 'password', '_id', encryptedPassword)
+            result = await functions.updateItemAttributeById(variables.constants.url, variables.constants.configdb, variables.constants.authCollection, 'password', 'password', encryptedPassword)
         } else {
-            throw null
+            throw 'Not Authorized.'
         }
     }
     return result

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ApiService } from '../services/api.service'
 import { FormGroup, FormControl, Validators } from '@angular/forms'
+import { ErrorService } from '../services/error.service'
 
 @Component({
   selector: 'app-choice',
@@ -9,7 +10,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms'
 })
 export class ChoiceComponent implements OnInit {
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService, private errorService: ErrorService) { }
 
   addForm = new FormGroup({
     collection: new FormControl('', Validators.required),
@@ -19,20 +20,20 @@ export class ChoiceComponent implements OnInit {
   dirs = []
 
   ngOnInit(): void {
-    this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(JSON.stringify(err)))
+    this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
   add() {
     this.apiService.add(this.addForm.controls['collection'].value, this.addForm.controls['dir'].value).then(() => {
       this.dirs.push({ collection: this.addForm.controls['collection'].value, dir: this.addForm.controls['dir'].value })
-    }).catch(err => alert(err))
+    }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
   remove(collection: string) {
     if (confirm(`Remove ${collection}? The files will not be deleted.`))
     this.apiService.remove(collection).then(() => {
       this.dirs = this.dirs.filter(dir => dir.collection != collection)
-    }).catch(err => console.log(JSON.stringify(err)))
+    }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
 }

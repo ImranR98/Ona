@@ -1,9 +1,21 @@
 <mat-card fxLayout="column">
     <mat-card-title>{{collection}}</mat-card-title>
-    <mat-card-subtitle>Page {{pageSource.value+1}} of {{maxPages}}</mat-card-subtitle>
-    <div fxLayout="column" fxLayoutGap="1em">
+    <mat-card-subtitle *ngIf="listSource.value.length > 0">Page {{pageSource.value+1}} of
+        {{maxPages == 0 ? 1 : maxPages}}</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the folder, or
+        folder scanning may still be in progress.</mat-card-subtitle>
+    <div fxLayout="column" fxLayoutGap="1em" *ngIf="listSource.value.length > 0">
+        <form [formGroup]="sortForm" fxLayout="row">
+            <mat-form-field fxFlex="100%">
+                <mat-label>Sort</mat-label>
+                <mat-select formControlName="sort">
+                    <mat-option *ngFor="let sort of sorts; let i = index" value="{{i}}">{{sort}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </form>
         <div fxLayout="row wrap" fxLayoutGap="1em"><span>Jump to page:</span>
-            <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)" style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
+            <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)"
+                style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
         </div>
         <mat-grid-list cols="15" rowHeight="1:1" fxHide fxShow.gt-lg>
             <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column"
@@ -65,12 +77,17 @@
                 </div>
             </mat-grid-tile>
         </mat-grid-list>
+        <div fxLayout="row wrap" fxLayoutGap="1em"><span>Jump to page:</span>
+            <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)"
+                style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
+        </div>
     </div>
 </mat-card>
 
 <div style="height: 6em;"></div>
 
-<div style="position: fixed; bottom: 1.5em; right: 1.5em;" fxLayout="row" fxLayoutGap="1em">
+<div style="position: fixed; bottom: 1.5em; right: 1.5em;" fxLayout="row" fxLayoutGap="1em"
+    *ngIf="listSource.value.length > 0">
     <button mat-fab color="primary" matTooltip="Previous Page" aria-label="Previous Page" (click)="prev()"
         *ngIf="pageSource.value &gt; 0">
         --

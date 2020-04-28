@@ -18,6 +18,10 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { ReactiveFormsModule } from '@angular/forms'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatSelectModule } from '@angular/material/select'
+import { HeaderComponent } from './header/header.component';
+import { ConfigComponent } from './config/config.component'
 
 @NgModule({
   declarations: [
@@ -25,7 +29,9 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     AuthComponent,
     ChoiceComponent,
     GalleryComponent,
-    Eror404Component
+    Eror404Component,
+    HeaderComponent,
+    ConfigComponent
   ],
   imports: [
     BrowserModule,
@@ -39,7 +45,9 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     MatButtonModule,
     MatFormFieldModule,
     MatGridListModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatToolbarModule,
+    MatSelectModule
   ],
   providers: [
     {

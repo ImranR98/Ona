@@ -1,0 +1,17 @@
+<div fxLayout="column" fxLayoutGap="1em">
+    <mat-card fxLayout="column">
+        <mat-card-title>Change your password</mat-card-title>
+        <mat-card-subtitle>Must be over 15 characters - the longer, the better.</mat-card-subtitle>
+        <form [formGroup]="passwordForm" (ngSubmit)="submit()" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="1em">
+            <mat-form-field>
+                <input matInput formControlName="password" placeholder="Password" type="password" required>
+            </mat-form-field>
+            <button mat-raised-button color="primary" type="submit">Change</button>
+        </form>
+    </mat-card>
+    <mat-card fxLayout="column">
+        <mat-card-title>Reset Application</mat-card-title>
+        <mat-card-subtitle>This is permanent - all app data will be deleted but your files will remain. The server will shut down and will need to be restarted manually.</mat-card-subtitle>
+        <button mat-raised-button color="warn" (click)="reset()">RESET</button>
+    </mat-card>
+</div>

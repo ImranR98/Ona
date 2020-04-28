@@ -5,6 +5,7 @@ import { AuthComponent } from './auth/auth.component'
 import { ChoiceComponent } from './choice/choice.component'
 import { GalleryComponent } from './gallery/gallery.component'
 import { Eror404Component } from './eror404/eror404.component'
+import { ConfigComponent } from './config/config.component'
 
 
 const routes: Routes = [
@@ -24,6 +25,11 @@ const routes: Routes = [
   {
     path: 'choice',
     component: ChoiceComponent,
+    canActivate: [AuthService]
+  },
+  {
+    path: 'config',
+    component: ConfigComponent,
     canActivate: [AuthService]
   },
   {

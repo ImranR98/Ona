@@ -1,7 +1,16 @@
-<div fxLayout="column" fxLayoutGap="1em">
+<div fxLayout="row" fxLayout.lt-sm="column" fxLayoutGap="1em">
+    <mat-card fxLayout="column" fxFlex="100%">
+        <mat-card-title>Folders</mat-card-title>
+        <mat-card-subtitle *ngIf="dirs.length == 0">No folders added yet.</mat-card-subtitle>
+        <div *ngFor="let dir of dirs" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
+            <a routerLink="/gallery/{{dir.collection}}">{{dir.collection}} - {{dir.dir}}</a>
+            <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
+        </div>
+    </mat-card>
     <mat-card fxLayout="column">
         <mat-card-title>Add Folder</mat-card-title>
-        <form [formGroup]="addForm" (ngSubmit)="add()" fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign="start start" fxLayoutGap="1em" fxLayoutGap.lt-md="0">
+        <form [formGroup]="addForm" (ngSubmit)="add()" fxLayout="row" fxLayout.lt-md="column"
+            fxLayoutAlign="start start" fxLayoutGap="1em" fxLayoutGap.lt-md="0">
             <mat-form-field>
                 <input matInput formControlName="collection" placeholder="Name" type="text" required>
             </mat-form-field>
@@ -10,13 +19,5 @@
             </mat-form-field>
             <button mat-raised-button color="primary" type="submit">Add</button>
         </form>
-    </mat-card>
-    <mat-card fxLayout="column">
-        <mat-card-title>Folders</mat-card-title>
-        <mat-card-subtitle *ngIf="dirs.length == 0">No folders added. Add one above.</mat-card-subtitle>
-        <div *ngFor="let dir of dirs" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-            <a routerLink="/gallery/{{dir.collection}}">{{dir.collection}} - {{dir.dir}}</a>
-            <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
-        </div>
     </mat-card>
 </div>
