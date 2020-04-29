@@ -83,18 +83,23 @@ const scanSync = async (collection, dir) => {
             log(file, collection, false)
             return false
         }
-        if (!file.DateTimeOriginal && !file.CreateDate) {
-            log('File has no DateTimeOriginal or CreateDate and will be ignored.', collection, false)
+        // Make sure the DateTimeOriginal (or CreateDate or MediaCreateDate as fallback options) have the rawValue attribute
+        if (file.DateTimeOriginal) if (!file.DateTimeOriginal.rawValue) delete file.DateTimeOriginal
+        if (file.CreateDate) if (!file.CreateDate.rawValue) delete file.CreateDate
+        if (file.MediaCreateDate) if (!file.MediaCreateDate.rawValue) delete file.MediaCreateDate
+        if (!file.DateTimeOriginal && !file.CreateDate && !file.MediaCreateDate) {
+            log('File has no DateTimeOriginal or CreateDate or MediaCreateDate and will be ignored.', collection, false)
             log(file, collection, false)
             return false
         }
-        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && (file.DateTimeOriginal || file.CreateDate) // Must be an image/video and have the DateTimeOriginal or CreateDate tags
+        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && (file.DateTimeOriginal || file.CreateDate || file.MediaCreateDate) // Must be an image/video and have the DateTimeOriginal or CreateDate or MediaCreateDate tags
     })
-    // For files that have no DateTimeOriginal (but have CreateDate), CreateDate is saved as DateTimeOriginal
+    // For files that have no DateTimeOriginal (but have CreateDate or MediaCreateDate), CreateDate or MediaCreateDate is saved as DateTimeOriginal
     filesToAdd = filesToAdd.map(file => {
         if (!file.DateTimeOriginal) {
-            file.DateTimeOriginal = file.CreateDate
-            log('File has no DateTimeOriginal so CreateDate will be used.', collection, false)
+            if (file.CreateDate) file.DateTimeOriginal = file.CreateDate
+            else file.DateTimeOriginal = file.MediaCreateDate
+            log('File has no DateTimeOriginal so CreateDate or MediaCreateDate will be used.', collection, false)
             log(file, collection, false)
         }
         return file

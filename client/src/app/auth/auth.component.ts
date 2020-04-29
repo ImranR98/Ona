@@ -32,6 +32,7 @@ export class AuthComponent implements OnInit {
       if (password.length > 15) {
         this.authService.setup(password).then(() => {
           this.isFirstTime = false
+          this.passwordForm.reset()
         }).catch(err => alert(this.errorService.stringifyError(err)))
       } else {
         alert('Password must be longer than 15 characters.')

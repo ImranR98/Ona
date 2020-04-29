@@ -26,6 +26,7 @@ export class ChoiceComponent implements OnInit {
   add() {
     this.apiService.add(this.addForm.controls['collection'].value, this.addForm.controls['dir'].value).then(() => {
       this.dirs.push({ collection: this.addForm.controls['collection'].value, dir: this.addForm.controls['dir'].value })
+      this.addForm.reset()
     }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 

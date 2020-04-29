@@ -4,7 +4,7 @@
         {{maxPages == 0 ? 1 : maxPages}}</mat-card-subtitle>
     <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the folder, or
         folder scanning may still be in progress.</mat-card-subtitle>
-    <div fxLayout="column" fxLayoutGap="1em" *ngIf="listSource.value.length > 0">
+    <div fxLayout="column" fxLayoutGap="1em" *ngIf="thumbnails.length > 0 && !loading">
         <form [formGroup]="sortForm" fxLayout="row">
             <mat-form-field fxFlex="100%">
                 <mat-label>Sort</mat-label>
@@ -82,12 +82,13 @@
                 style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
         </div>
     </div>
+    <p *ngIf="loading || (thumbnails.length == 0 && listSource.value.length > 0)">Please wait...</p>
 </mat-card>
 
 <div style="height: 6em;"></div>
 
 <div style="position: fixed; bottom: 1.5em; right: 1.5em;" fxLayout="row" fxLayoutGap="1em"
-    *ngIf="listSource.value.length > 0">
+    *ngIf="thumbnails.length > 0 && !loading">
     <button mat-fab color="primary" matTooltip="Previous Page" aria-label="Previous Page" (click)="prev()"
         *ngIf="pageSource.value &gt; 0">
         --

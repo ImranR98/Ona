@@ -1,8 +1,59 @@
-/* You can add global styles to this file, and also import other style files */
+//Importing Angular Material
+@import '~@angular/material/theming';
 
-html, body { height: 100%; background-color: darkgrey; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+//Define custom font to use with Material, then include it
+@include mat-core();
 
-.font-weight-bold {
+//Define custom color palettes for the App's primary, accent and warning colors (numbers indicate default, lighter and darker variants)
+$dark-mode-primary:  mat-palette($mat-indigo);
+$dark-mode-accent: mat-palette($mat-yellow);
+$dark-mode-warn: mat-palette($mat-red);
+
+//Define a theme using the above palettes
+$dark-mode-theme: mat-dark-theme($dark-mode-primary, $dark-mode-accent, $dark-mode-warn);
+
+//Define another theme and import it in a class (not default)
+$light-mode-primary:  mat-palette($mat-indigo);
+$light-mode-accent: mat-palette($mat-yellow);
+$light-mode-warn: mat-palette($mat-red);
+$light-mode-theme: mat-light-theme($light-mode-primary, $light-mode-accent, $light-mode-warn);
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  @include angular-material-theme($dark-mode-theme);
+  .font-weight-bold {
+    background-color: mat-color($dark-mode-accent) !important;
+    color: #000 !important;
+  }
+
+  html {
+    background-color: rgb(50, 50, 50);
+  }
+}
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+  @include angular-material-theme($light-mode-theme);
+  .font-weight-bold {
     font-weight: bold;
+    background-color: mat-color($light-mode-accent) !important;
+    color: #000 !important;
+  }
+
+  html {
+    background-color: rgb(200, 200, 200);
+  }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+mat-toolbar a {
+  text-decoration: none;
 }

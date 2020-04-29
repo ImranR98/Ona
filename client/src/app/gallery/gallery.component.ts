@@ -18,10 +18,12 @@ export class GalleryComponent implements OnInit, OnDestroy {
     sort: new FormControl(0)
   })
 
+  loading = false
+
   collection
 
   maxPages = 0
-  pageSize = 70
+  pageSize = 100
   sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
 
   subs: Subscription[] = []
@@ -36,6 +38,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sortForm.controls['sort'].valueChanges.subscribe(selectedSort => {
       this.listSource.next(this.sortList(selectedSort, this.listSource.value))
+      this.toPage(0)
     })
 
     this.subs.push(this.list.subscribe(list => {
@@ -52,7 +55,9 @@ export class GalleryComponent implements OnInit, OnDestroy {
         alert('Folder name not provided.')
         this.router.navigate(['/choice'])
       } else {
+        this.loading = true
         this.apiService.list(this.collection).then(data => {
+          this.loading = false
           this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data))
         }).catch(err => {
           alert(this.errorService.stringifyError(err))
@@ -63,11 +68,18 @@ export class GalleryComponent implements OnInit, OnDestroy {
   }
 
   sortList(selectedSort: number, list) {
+    list = list.filter(item => {
+      if (!item.DateTimeOriginal) {
+        console.log(item)
+        return false
+      }
+      return true
+    })
     if (list) {
-      if (selectedSort == 0) return list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
-      if (selectedSort == 1) return list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
-      if (selectedSort == 2) return list.sort((a, b) => (b._id).localeCompare(a._id))
-      if (selectedSort == 3) return list.sort((a, b) => (a._id).localeCompare(b._id))
+      if (selectedSort == 0) list = list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
+      if (selectedSort == 1) list = list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
+      if (selectedSort == 2) list = list.sort((a, b) => (b._id).localeCompare(a._id))
+      if (selectedSort == 3) list = list.sort((a, b) => (a._id).localeCompare(b._id))
     }
     return list
   }
@@ -85,6 +97,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   }
 
   updateThumbnails() {
+    this.thumbnails = []
     this.maxPages = Math.ceil(this.listSource.value.length / this.pageSize)
     let startIndex = this.pageSource.value * this.pageSize
     let endIndex = startIndex + this.pageSize - 1
