@@ -3,7 +3,7 @@
         <mat-card-title>Folders</mat-card-title>
         <mat-card-subtitle *ngIf="dirs.length == 0">No folders added yet.</mat-card-subtitle>
         <div *ngFor="let dir of dirs" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-            <a routerLink="/gallery/{{dir.collection}}">{{dir.collection}} - {{dir.dir}}</a>
+            <a routerLink="/gallery/{{dir.collection}}" style="word-break: break-all;">{{dir.collection}} - {{dir.dir}}</a>
             <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
         </div>
     </mat-card>

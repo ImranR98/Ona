@@ -21,7 +21,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   collection
 
   maxPages = 0
-  pageSize = 50
+  pageSize = 70
   sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
 
   subs: Subscription[] = []
