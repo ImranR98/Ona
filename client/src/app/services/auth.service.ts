@@ -25,7 +25,6 @@ export class AuthService {
   async setup(password: string): Promise<any> {
     if (confirm('Continue? The password cannot be recovered later.')) {
       let res = await this.http.post(environment.apiUrl + '/setup', { password }, this.httpOptions).toPromise()
-      alert('Password was set.')
       return res
     }
   }
@@ -62,13 +61,12 @@ export class AuthService {
   }
 
   // Reset everything and shut down the server
-  async reset(): Promise<any> {
-    try {
-      await this.http.post(environment.apiUrl + '/reset', {}, this.httpOptions).toPromise()
-    } catch (err) {
-      // This will always be an error due to the dropped connection
-    }
-    window.location.href = 'about:blank'
+  reset() {
+    this.http.post(environment.apiUrl + '/reset', {}, this.httpOptions).toPromise().catch(err => {
+      this.logout(false)
+      alert('Reset may be complete - check server logs to verify.')
+      window.location.href = 'about:blank'
+    })
   }
 
   // Used for HTTPInterceptor

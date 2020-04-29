@@ -104,9 +104,9 @@ export class GalleryComponent implements OnInit, OnDestroy {
     let listMaxIndex = this.listSource.value.length - 1
     if (startIndex <= listMaxIndex) {
       if (endIndex > listMaxIndex) endIndex = listMaxIndex
-      this.apiService.many(this.collection, this.listSource.value.map(el => el._id).slice(startIndex, endIndex + 1)).then(res => {
-        this.thumbnails = res
-      }).catch(err => alert(this.errorService.stringifyError(err)))
+      for (let i = startIndex; i <= endIndex; i++) {
+        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i] = res).catch(err => console.log(err))
+      }
     }
   }
 

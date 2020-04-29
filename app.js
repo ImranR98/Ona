@@ -96,8 +96,8 @@ const cleanScanners = () => scanners = scanners.filter(scanner => !scanner.proce
 // Start a scanner
 const startScanner = async (collection, dir, newScanner = false) => {
 	try {
-	if (!fs.existsSync(dir)) throw 'Directory does not exist.'
-	if (!fs.statSync(dir).isDirectory()) throw 'Not a directory.'
+		if (!fs.existsSync(dir)) throw 'Directory does not exist.'
+		if (!fs.statSync(dir).isDirectory()) throw 'Not a directory.'
 	} catch (err) {
 		if (newScanner) throw err
 		else await stopScanner(collection)
@@ -181,24 +181,35 @@ app.post('/newAuth', checkIfAuthenticated, (req, res) => {
 // Delete everything in the database and exit
 app.post('/reset', checkIfAuthenticated, (req, res) => {
 	log('Attempting to reset app...')
-	functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
-		functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
-			let promises = []
-			scanners.forEach(scanner => promises.push(stopScanner(scanner.collection)))
-			Promise.all(promises).then(result3 => {
+	let promises = []
+	scanners.forEach(scanner => promises.push(stopScanner(scanner.collection)))
+	Promise.all(promises).then(result3 => {
+		functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
+			functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
 				log('App was reset and will now exit.')
 				process.exit(0)
-			}).catch(err => {
-				log('App was reset but all scanners could not be stopped - you may have to stop them and clear the database manually.')
-				process.exit(0)
+			}).catch((err) => {
+				log(err)
+				res.status(500).send(err)
 			})
 		}).catch((err) => {
 			log(err)
 			res.status(500).send(err)
 		})
-	}).catch((err) => {
-		log(err)
-		res.status(500).send(err)
+	}).catch(err => {
+		log('Could not stop all scanners - please stop them manually.')
+		functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
+			functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
+				log('App was reset and will now exit.')
+				process.exit(0)
+			}).catch((err) => {
+				log(err)
+				res.status(500).send(err)
+			})
+		}).catch((err) => {
+			log(err)
+			res.status(500).send(err)
+		})
 	})
 })
 

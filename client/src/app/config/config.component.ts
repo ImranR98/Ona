@@ -31,10 +31,7 @@ export class ConfigComponent implements OnInit {
 
   reset() {
     if (confirm('This is permanent - all app data will be deleted but your files will remain. The server will shut down and will need to be restarted manually. Continue?')) {
-      this.authService.reset().then(() => {
-        alert('Application was reset and the server was shut down.')
-        this.authService.logout(true)
-      }).catch(err => alert(this.errorService.stringifyError(err)))
+      this.authService.reset()
     }
   }
 

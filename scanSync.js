@@ -77,7 +77,7 @@ const scanSync = async (collection, dir) => {
     filesToAdd.map(file => file._id = file.FileName)
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
-        if (!file) return false
+        if (!file || file == {}) return false
         if (!file.MIMEType) {
             log('File has no MIMEType and will be ignored.', collection, false)
             log(file, collection, false)
