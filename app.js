@@ -91,7 +91,7 @@ const log = (object, consoleToo = true) => {
 }
 
 // Clean the scanners array to remove any dead scanners
-const cleanScanners = () => scanners.filter(scanner => scanner.processObj.exitCode != null)
+const cleanScanners = () => scanners = scanners.filter(scanner => !scanner.processObj.killed)
 
 // Start a scanner
 const startScanner = async (collection, dir, newScanner = false) => {
