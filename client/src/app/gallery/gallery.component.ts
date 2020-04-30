@@ -38,7 +38,6 @@ export class GalleryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sortForm.controls['sort'].valueChanges.subscribe(selectedSort => {
       this.listSource.next(this.sortList(selectedSort, this.listSource.value))
-      this.toPage(0)
     })
 
     this.subs.push(this.list.subscribe(list => {
@@ -105,7 +104,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (startIndex <= listMaxIndex) {
       if (endIndex > listMaxIndex) endIndex = listMaxIndex
       for (let i = startIndex; i <= endIndex; i++) {
-        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i] = res).catch(err => console.log(err))
+        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i-startIndex] = res).catch(err => console.log(err))
       }
     }
   }

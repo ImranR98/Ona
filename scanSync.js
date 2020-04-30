@@ -7,6 +7,7 @@
 const fs = require('fs') // For interacting with the file system
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
+const node = require('child_process').fork
 
 // Check if the log directory exists
 let logDirExists = false
@@ -105,6 +106,20 @@ const scanSync = async (collection, dir) => {
         return file
     })
     if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : ''}${originalFilesLength - filesToAdd.length} invalid files were ignored.`, collection)
+    // Generate thumbnails
+    if (filesToAdd.length > 0) {
+        log(`Generating thumbnails for ${filesToAdd.length} files...`, collection)
+        for (let i = 0; i < filesToAdd.length; i++) {
+            try {
+                filesToAdd[i].thumbnail = await functions.getBase64Thumbnail(filesToAdd[i].SourceFile, filesToAdd[i]._id, 200, 200, filesToAdd[i].MIMEType.startsWith('video'))
+            } catch (err) {
+                filesToAdd[i].thumbnail = variables.constants.bas64ErrorThumbnail
+                log('Error generating thumbnail for file.', collection, false)
+                log(filesToAdd[i], collection, false)
+                log(err, collection, false)
+            }
+        }
+    }
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)

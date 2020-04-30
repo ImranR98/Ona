@@ -269,13 +269,7 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
 			if (result) {
-				functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video')).then(base64Thumbnail => {
-					result.thumbnail = base64Thumbnail
-					res.send(result)
-				}).catch(err => {
-					log(err)
-					res.status(500).send(err)
-				})
+				res.send(result)
 			} else res.send(result)
 		}).catch(err => {
 			log(err)
@@ -291,20 +285,7 @@ app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 		res.status(400).send()
 	} else {
 		functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.body.ids).then(results => {
-			if (results) {
-				let promises = []
-				results.forEach(result => promises.push(functions.getBase64Thumbnail(result.SourceFile, result.FileName, 200, 200, result.MIMEType.startsWith('video'))))
-				Promise.all(promises).then((thumbnails) => {
-					results = results.map((result, index) => {
-						result.thumbnail = thumbnails[index]
-						return result
-					})
-					res.send(results)
-				}).catch(err => {
-					log(err)
-					res.status(500).send(err)
-				})
-			} else res.send(results)
+			res.send(results)
 		}).catch(err => {
 			log(err)
 			res.status(500).send(err)
