@@ -23,6 +23,7 @@ import { MatSelectModule } from '@angular/material/select'
 import { HeaderComponent } from './header/header.component'
 import { ConfigComponent } from './config/config.component'
 import { SingleItemComponent } from './single-item/single-item.component'
+import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 
 @NgModule({
   declarations: [
@@ -49,7 +50,8 @@ import { SingleItemComponent } from './single-item/single-item.component'
     MatGridListModule,
     MatTooltipModule,
     MatToolbarModule,
-    MatSelectModule
+    MatSelectModule,
+    InfiniteScrollModule
   ],
   providers: [
     {

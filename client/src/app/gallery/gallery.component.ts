@@ -14,17 +14,10 @@ export class GalleryComponent implements OnInit, OnDestroy {
 
   constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService, private errorService: ErrorService) { }
 
-  sortForm = new FormGroup({
-    sort: new FormControl(0)
-  })
-
   loading = false
 
   collection
-
-  maxPages = 0
-  pageSize = 100
-  sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
+  loadAtATime = 50
 
   subs: Subscription[] = []
   thumbnails = []
@@ -32,20 +25,10 @@ export class GalleryComponent implements OnInit, OnDestroy {
   listSource = new BehaviorSubject([])
   list = this.listSource.asObservable()
 
-  pageSource = new BehaviorSubject(0)
-  page = this.pageSource.asObservable()
-
   ngOnInit(): void {
-    this.sortForm.controls['sort'].valueChanges.subscribe(selectedSort => {
-      this.listSource.next(this.sortList(selectedSort, this.listSource.value))
-    })
-
     this.subs.push(this.list.subscribe(list => {
-      this.updateThumbnails()
-    }))
-
-    this.subs.push(this.page.subscribe(page => {
-      this.updateThumbnails()
+      this.thumbnails = []
+      this.updateThumbnails(100)
     }))
 
     this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
@@ -57,7 +40,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
         this.loading = true
         this.apiService.list(this.collection).then(data => {
           this.loading = false
-          this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data))
+          this.listSource.next(this.sortList(0, data))
         }).catch(err => {
           alert(this.errorService.stringifyError(err))
           this.router.navigate(['/choice'])
@@ -66,10 +49,13 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }))
   }
 
+  onScroll() {
+    this.updateThumbnails()
+  }
+
   sortList(selectedSort: number, list) {
     list = list.filter(item => {
       if (!item.DateTimeOriginal) {
-        console.log(item)
         return false
       }
       return true
@@ -83,28 +69,12 @@ export class GalleryComponent implements OnInit, OnDestroy {
     return list
   }
 
-  next() {
-    if (this.pageSource.value < this.maxPages) this.pageSource.next(this.pageSource.value + 1)
-  }
-
-  prev() {
-    if (this.pageSource.value > 0) this.pageSource.next(this.pageSource.value - 1)
-  }
-
-  toPage(num: number) {
-    if (num <= this.maxPages && num >= 0) this.pageSource.next(num)
-  }
-
-  updateThumbnails() {
-    this.thumbnails = []
-    this.maxPages = Math.ceil(this.listSource.value.length / this.pageSize)
-    let startIndex = this.pageSource.value * this.pageSize
-    let endIndex = startIndex + this.pageSize - 1
-    let listMaxIndex = this.listSource.value.length - 1
-    if (startIndex <= listMaxIndex) {
-      if (endIndex > listMaxIndex) endIndex = listMaxIndex
+  updateThumbnails(num: number = this.loadAtATime) {
+    let startIndex = this.thumbnails.length == 0 ? 0 : this.thumbnails.length - 1
+    let endIndex = this.listSource.value.length - 1 > startIndex + num - 1 ? startIndex + num - 1 : this.listSource.value.length
+    if (startIndex != endIndex && !this.loading) {
       for (let i = startIndex; i <= endIndex; i++) {
-        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i - startIndex] = res).catch(err => console.log(err))
+        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i] = res).catch(err => console.log(err))
       }
     }
   }
@@ -116,6 +86,5 @@ export class GalleryComponent implements OnInit, OnDestroy {
 
 /*
 TODO:
-- Try making the interface an infinite scroll instead of paginated
 - Try making single item viewing part of the same component, so that thumbnails don't need to be reloaded after viewing every single item.
 */

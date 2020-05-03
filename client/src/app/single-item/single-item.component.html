@@ -1,6 +1,8 @@
-<mat-card fxLayout="column">
-    <mat-card-title style="word-wrap: break-word">{{collection}} - {{itemID}}</mat-card-title>
-    <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
+<mat-card fxLayout="column" fxLayoutGap="1em">
+    <div>
+        <mat-card-title style="word-wrap: break-word">{{collection}} - {{itemID}}</mat-card-title>
+        <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
+    </div>
     <div *ngIf="itemSource.value">
         <img *ngIf="itemSource.value.MIMEType.startsWith('image')" mat-card-image [src]="imageSrc"
             style="height: 100%;">
