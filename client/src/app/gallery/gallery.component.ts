@@ -50,9 +50,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   }
 
   onScroll() {
-    this.loading = true
     this.updateThumbnails()
-    this.loading = false
   }
 
   sortList(selectedSort: number, list) {
@@ -74,10 +72,15 @@ export class GalleryComponent implements OnInit, OnDestroy {
   updateThumbnails() {
     let startIndex = this.thumbnails.length == 0 ? 0 : this.thumbnails.length - 1
     let endIndex = this.listSource.value.length - 1 > startIndex + this.loadAtATime - 1 ? startIndex + this.loadAtATime - 1 : this.listSource.value.length
-    if (startIndex != endIndex) {
+    if (startIndex != endIndex && !this.loading) {
+      this.loading = true
       this.apiService.many(this.collection, this.listSource.value.filter((el, index) => index >= startIndex && index <= endIndex).map(el => el._id)).then(res => {
-        this.thumbnails = this.thumbnails.concat(res)
-      }).catch(err => console.log(err))
+        this.thumbnails = Array.from(new Set(this.thumbnails.concat(res)))
+        this.loading = false
+      }).catch(err => {
+        this.loading = false
+        console.log(err)
+      })
     }
   }
 
@@ -88,6 +91,5 @@ export class GalleryComponent implements OnInit, OnDestroy {
 
 /*
 TODO:
-- Try making the interface an infinite scroll instead of paginated
 - Try making single item viewing part of the same component, so that thumbnails don't need to be reloaded after viewing every single item.
 */
