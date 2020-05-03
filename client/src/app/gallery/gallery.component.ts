@@ -28,7 +28,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subs.push(this.list.subscribe(list => {
       this.thumbnails = []
-      this.updateThumbnails()
+      this.updateThumbnails(100)
     }))
 
     this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
@@ -69,18 +69,13 @@ export class GalleryComponent implements OnInit, OnDestroy {
     return list
   }
 
-  updateThumbnails() {
+  updateThumbnails(num: number = this.loadAtATime) {
     let startIndex = this.thumbnails.length == 0 ? 0 : this.thumbnails.length - 1
-    let endIndex = this.listSource.value.length - 1 > startIndex + this.loadAtATime - 1 ? startIndex + this.loadAtATime - 1 : this.listSource.value.length
+    let endIndex = this.listSource.value.length - 1 > startIndex + num - 1 ? startIndex + num - 1 : this.listSource.value.length
     if (startIndex != endIndex && !this.loading) {
-      this.loading = true
-      this.apiService.many(this.collection, this.listSource.value.filter((el, index) => index >= startIndex && index <= endIndex).map(el => el._id)).then(res => {
-        this.thumbnails = Array.from(new Set(this.thumbnails.concat(res)))
-        this.loading = false
-      }).catch(err => {
-        this.loading = false
-        console.log(err)
-      })
+      for (let i = startIndex; i <= endIndex; i++) {
+        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i] = res).catch(err => console.log(err))
+      }
     }
   }
 
