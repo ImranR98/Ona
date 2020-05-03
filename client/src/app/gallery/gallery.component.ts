@@ -104,7 +104,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (startIndex <= listMaxIndex) {
       if (endIndex > listMaxIndex) endIndex = listMaxIndex
       for (let i = startIndex; i <= endIndex; i++) {
-        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i-startIndex] = res).catch(err => console.log(err))
+        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i - startIndex] = res).catch(err => console.log(err))
       }
     }
   }
@@ -113,3 +113,9 @@ export class GalleryComponent implements OnInit, OnDestroy {
     this.subs.forEach(sub => sub.unsubscribe())
   }
 }
+
+/*
+TODO:
+- Try making the interface an infinite scroll instead of paginated
+- Try making single item viewing part of the same component, so that thumbnails don't need to be reloaded after viewing every single item.
+*/

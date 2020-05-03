@@ -56,7 +56,6 @@ export class SingleItemComponent implements OnInit, OnDestroy {
           }
         })
       }
-      console.log(item)
     })
   }
 

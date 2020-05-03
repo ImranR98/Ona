@@ -17,66 +17,68 @@
             <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)"
                 style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
         </div>
-        <mat-grid-list cols="15" rowHeight="1:1" fxHide fxShow.gt-lg>
-            <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
-                <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
-                    [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
-                    [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
-                    <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+        <div>
+            <mat-grid-list cols="15" rowHeight="1:1" fxHide fxShow.gt-lg>
+                <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
+                    <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
+                        [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
+                        [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
+                        fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                        <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
+                            Play
+                        </div>
                     </div>
-                </div>
-            </mat-grid-tile>
-        </mat-grid-list>
-        <mat-grid-list cols="10" rowHeight="1:1" fxHide fxShow.lg>
-            <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
-                <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
-                    [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
-                    [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
-                    <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+                </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="10" rowHeight="1:1" fxHide fxShow.lg>
+                <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
+                    <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
+                        [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
+                        [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
+                        fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                        <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
+                            Play
+                        </div>
                     </div>
-                </div>
-            </mat-grid-tile>
-        </mat-grid-list>
-        <mat-grid-list cols="5" rowHeight="1:1" fxHide fxShow.md>
-            <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
-                <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
-                    [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
-                    [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
-                    <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+                </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="5" rowHeight="1:1" fxHide fxShow.md>
+                <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
+                    <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
+                        [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
+                        [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
+                        fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                        <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
+                            Play
+                        </div>
                     </div>
-                </div>
-            </mat-grid-tile>
-        </mat-grid-list>
-        <mat-grid-list cols="3" rowHeight="1:1" fxHide fxShow.sm>
-            <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
-                <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
-                    [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
-                    [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
-                    <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+                </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="3" rowHeight="1:1" fxHide fxShow.sm>
+                <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
+                    <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
+                        [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
+                        [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
+                        fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                        <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
+                            Play
+                        </div>
                     </div>
-                </div>
-            </mat-grid-tile>
-        </mat-grid-list>
-        <mat-grid-list cols="2" rowHeight="1:1" fxHide fxShow.lt-sm>
-            <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
-                <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
-                    [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
-                    [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
-                    <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+                </mat-grid-tile>
+            </mat-grid-list>
+            <mat-grid-list cols="2" rowHeight="1:1" fxHide fxShow.lt-sm>
+                <mat-grid-tile *ngFor="let thumbnail of thumbnails" fxLayout="column">
+                    <div *ngIf="thumbnail" fxFill matTooltip="{{thumbnail.DateTimeOriginal.rawValue}}"
+                        [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
+                        [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
+                        fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                        <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
+                            Play
+                        </div>
                     </div>
-                </div>
-            </mat-grid-tile>
-        </mat-grid-list>
+                </mat-grid-tile>
+            </mat-grid-list>
+        </div>
         <div fxLayout="row wrap" fxLayoutGap="1em"><span>Jump to page:</span>
             <a *ngFor="let item of [].constructor(maxPages); let i = index" (click)="toPage(i)"
                 style="font-weight: bold; text-decoration: underline;">{{i+1}}</a>
@@ -87,7 +89,7 @@
 
 <div style="height: 6em;"></div>
 
-<div style="position: fixed; bottom: 1.5em; right: 1.5em;" fxLayout="row" fxLayoutGap="1em"
+<div style="position: fixed; bottom: 1em; right: 1em;" fxLayout="row" fxLayoutGap="1em"
     *ngIf="thumbnails.length > 0 && !loading">
     <button mat-fab color="primary" matTooltip="Previous Page" aria-label="Previous Page" (click)="prev()"
         *ngIf="pageSource.value &gt; 0">

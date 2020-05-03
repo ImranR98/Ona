@@ -38,7 +38,6 @@ export class ApiService {
     let opts: any = JSON.parse(JSON.stringify(this.httpOptions))
     delete opts.headers
     opts.responseType = 'blob'
-    console.log(opts)
     return await this.http.get(environment.apiUrl + `/content/${collection}/${id}`, opts).toPromise()
   }
 
