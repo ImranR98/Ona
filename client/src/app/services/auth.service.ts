@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { environment } from 'src/environments/environment'
 import { Observable, BehaviorSubject } from 'rxjs'
 import { ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router'
-import * as moment from 'moment'
+import * as moment from 'moment/moment'
 import * as jwt_decode from 'jwt-decode'
 
 @Injectable({

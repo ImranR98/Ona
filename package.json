@@ -10,18 +10,16 @@
   "author": "Imran Remtulla",
   "license": "ISC",
   "dependencies": {
-    "@angular/cdk": "^9.2.1",
-    "@angular/flex-layout": "^9.0.0-beta.29",
     "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
-    "exiftool-vendored": "^11.1.0",
+    "exiftool-vendored": "^11.2.0",
     "express": "^4.17.1",
     "express-jwt": "^5.3.3",
-    "ffmpeg-static": "^4.1.1",
+    "ffmpeg-static": "^4.2.0",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.5.6",
+    "mongodb": "^3.5.7",
     "sharp": "^0.25.2",
-    "tmp": "^0.1.0"
+    "tmp": "^0.2.1"
   }
 }
