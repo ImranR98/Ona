@@ -7,7 +7,7 @@
 const fs = require('fs') // For interacting with the file system
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
-const node = require('child_process').fork
+const md5File = require('md5-file') // To calculate file hashes
 
 // Check if the log directory exists
 let logDirExists = false
@@ -46,7 +46,19 @@ const scanSync = async (collection, dir) => {
         log(err, collection)
         process.exit(-3)
     }
-    // Get any ids (file names) for files already in the collection
+    // Calculate hashes for all the files in the current directory
+    try {
+        files = files.map(file => {
+            return {
+                file: file,
+                hash: md5File.sync(`${dir}/${file}`)
+            }
+        })
+    } catch (err) {
+        log(err, collection)
+        process.exit(-10)
+    }
+    // Get any ids for files already in the collection
     let idsInDB = []
     try {
         idsInDB = await functions.getIdsFromMongo(variables.constants.url, variables.constants.db, collection)
@@ -59,7 +71,7 @@ const scanSync = async (collection, dir) => {
     let filesToAdd = files.filter(file => {
         let found = false
         for (let i = 0; i < idsInDB.length; i++) {
-            if (file == idsInDB[i]) found = true
+            if (file.hash == idsInDB[i]) found = true
         }
         return !found
     })
@@ -67,15 +79,20 @@ const scanSync = async (collection, dir) => {
     let idsToRemove = idsInDB.filter(idInDB => {
         let found = false
         for (let i = 0; i < files.length; i++) {
-            if (idInDB == files[i]) found = true
+            if (idInDB == files[i].hash) found = true
         }
         return !found
     })
     // Get the metadata for every file to add
     if (filesToAdd.length > 0) log(`Getting metadata for ${filesToAdd.length} files...`, collection)
-    filesToAdd = await functions.exiftoolRead(dir, filesToAdd)
+    filesToAdd = await functions.exiftoolRead(dir, filesToAdd.map(file => file.file))
     let originalFilesLength = filesToAdd.length
-    filesToAdd.map(file => file._id = file.FileName)
+    // Recalculate hashes for files to be added // TODO: Redundant - re-use previously calculated hashes
+    if (filesToAdd.length > 0) log(`Calculating hashes for ${filesToAdd.length} files...`, collection)
+    filesToAdd = filesToAdd.map(file => {
+        file._id = md5File.sync(file.SourceFile)
+        return file
+    })
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
         if (!file || file == {}) return false
@@ -111,7 +128,7 @@ const scanSync = async (collection, dir) => {
         log(`Generating thumbnails for ${filesToAdd.length} files...`, collection)
         for (let i = 0; i < filesToAdd.length; i++) {
             try {
-                filesToAdd[i].thumbnail = await functions.getBase64Thumbnail(filesToAdd[i].SourceFile, filesToAdd[i]._id, 200, 200, filesToAdd[i].MIMEType.startsWith('video'))
+                filesToAdd[i].thumbnail = await functions.getBase64Thumbnail(filesToAdd[i].SourceFile, filesToAdd[i].FileName, 200, 200, filesToAdd[i].MIMEType.startsWith('video'))
             } catch (err) {
                 filesToAdd[i].thumbnail = variables.constants.bas64ErrorThumbnail
                 log('Error generating thumbnail for file.', collection, false)

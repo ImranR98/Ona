@@ -100,8 +100,8 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (list) {
       if (selectedSort == 0) list = list.sort((a, b) => (b.DateTimeOriginal.rawValue).localeCompare(a.DateTimeOriginal.rawValue))
       if (selectedSort == 1) list = list.sort((a, b) => (a.DateTimeOriginal.rawValue).localeCompare(b.DateTimeOriginal.rawValue))
-      if (selectedSort == 2) list = list.sort((a, b) => (b._id).localeCompare(a._id))
-      if (selectedSort == 3) list = list.sort((a, b) => (a._id).localeCompare(b._id))
+      if (selectedSort == 2) list = list.sort((a, b) => (b.FileName).localeCompare(a.FileName))
+      if (selectedSort == 3) list = list.sort((a, b) => (a.FileName).localeCompare(b.FileName))
     }
     return list
   }
@@ -120,12 +120,13 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }
   }
 
-  openItem(id) {
+  openItem(id, FileName) {
     if (!this.loading) {
       this.dialog.open(SingleItemComponent, {
         data: {
           collection: this.collection,
-          _id: id
+          _id: id,
+          FileName: FileName
         },
         maxHeight: '100vh',
         maxWidth: '100%'

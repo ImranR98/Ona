@@ -22,7 +22,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -39,7 +39,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -56,7 +56,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -73,7 +73,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -90,7 +90,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video

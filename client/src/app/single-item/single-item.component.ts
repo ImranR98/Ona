@@ -13,7 +13,7 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
 })
 export class SingleItemComponent implements OnInit, OnDestroy {
 
-  constructor(private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer, private dialogRef: MatDialogRef<SingleItemComponent>, @Inject(MAT_DIALOG_DATA) public data: { collection: string, _id: string } | null, private dialog: MatDialog) { }
+  constructor(private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer, private dialogRef: MatDialogRef<SingleItemComponent>, @Inject(MAT_DIALOG_DATA) public data: { collection: string, _id: string, FileName: string } | null, private dialog: MatDialog) { }
 
   subs: Subscription[] = []
   dateString = ''

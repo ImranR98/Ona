@@ -252,7 +252,7 @@ app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 		log('Invalid collection.')
 		res.status(400).send()
 	} else {
-		functions.getDataFromMongo(variables.constants.url, variables.constants.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue']).then(result => {
+		functions.getDataFromMongo(variables.constants.url, variables.constants.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue', 'FileName']).then(result => {
 			res.send(result)
 		}).catch(err => {
 			log(err)
