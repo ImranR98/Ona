@@ -27,7 +27,11 @@ Run ```node app.js```
 * **Imran Remtulla** - [ImranR98](https://github.com/ImranR98)
 
 ## Screenshots
+### Folders
 ![Screenshot of Folders page](/screenshots/folders.png?raw=true "Folders")
+### Gallery
 ![Screenshot of Gallery page](/screenshots/gallery.png?raw=true "Gallery")
+### Item View
 ![Screenshot of Item View](/screenshots/item.png?raw=true "Item View")
+### Configuration
 ![Screenshot of Configuration page](/screenshots/config.png?raw=true "Configuration")
