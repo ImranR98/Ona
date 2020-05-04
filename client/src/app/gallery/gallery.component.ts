@@ -4,6 +4,7 @@ import { ApiService } from '../services/api.service'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import { ErrorService } from '../services/error.service'
 import { FormGroup, FormControl } from '@angular/forms'
+import { MatSliderChange } from '@angular/material/slider'
 
 @Component({
   selector: 'app-gallery',
@@ -16,19 +17,39 @@ export class GalleryComponent implements OnInit, OnDestroy {
 
   loading = false
 
+  sortForm = new FormGroup({
+    sort: new FormControl(0)
+  })
+
   collection
-  loadAtATime = 50
+  loadAtATime = 200
+
+  pageNo = 1
+  maxPages = 1
 
   subs: Subscription[] = []
   thumbnails = []
+  sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
 
   listSource = new BehaviorSubject([])
   list = this.listSource.asObservable()
 
+  grabFromIndexSource = new BehaviorSubject(0)
+  grabFromIndex = this.grabFromIndexSource.asObservable()
+
   ngOnInit(): void {
     this.subs.push(this.list.subscribe(list => {
+      this.maxPages = Math.ceil(list.length / this.loadAtATime)
       this.thumbnails = []
-      this.updateThumbnails(100)
+      this.toPage(1)
+    }))
+
+    this.sortForm.controls['sort'].valueChanges.subscribe(selectedSort => {
+      this.listSource.next(this.sortList(selectedSort, this.listSource.value))
+    })
+
+    this.subs.push(this.grabFromIndex.subscribe(index => {
+      this.grabThumbnails()
     }))
 
     this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
@@ -40,7 +61,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
         this.loading = true
         this.apiService.list(this.collection).then(data => {
           this.loading = false
-          this.listSource.next(this.sortList(0, data))
+          this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data))
         }).catch(err => {
           alert(this.errorService.stringifyError(err))
           this.router.navigate(['/choice'])
@@ -49,8 +70,22 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }))
   }
 
-  onScroll() {
-    this.updateThumbnails()
+  sliderChanged(e: MatSliderChange) {
+    this.toPage(e.value)
+  }
+
+  nextPage() {
+    this.toPage(++this.pageNo)
+  }
+
+  prevPage() {
+    this.toPage(--this.pageNo)
+  }
+  
+  toPage(num: number) {
+    if (((num - 1) * this.loadAtATime <= this.listSource.value.length - 1) && ((num - 1) * this.loadAtATime >= 0)) {
+      this.grabFromIndexSource.next((num - 1) * this.loadAtATime)
+    }
   }
 
   sortList(selectedSort: number, list) {
@@ -69,13 +104,18 @@ export class GalleryComponent implements OnInit, OnDestroy {
     return list
   }
 
-  updateThumbnails(num: number = this.loadAtATime) {
-    let startIndex = this.thumbnails.length == 0 ? 0 : this.thumbnails.length - 1
-    let endIndex = this.listSource.value.length - 1 > startIndex + num - 1 ? startIndex + num - 1 : this.listSource.value.length
-    if (startIndex != endIndex && !this.loading) {
-      for (let i = startIndex; i <= endIndex; i++) {
-        this.apiService.single(this.collection, this.listSource.value[i]._id).then(res => this.thumbnails[i] = res).catch(err => console.log(err))
+  async grabThumbnails() {
+    if (this.collection) {
+      let endOfList = (this.listSource.value.length - 1 > 0 ? this.listSource.value.length - 1 : 0)
+      let endIndex = this.grabFromIndexSource.value + this.loadAtATime - 1 < endOfList ? this.grabFromIndexSource.value + this.loadAtATime - 1 : endOfList
+      console.log('Grabbing from ' + this.grabFromIndexSource.value + ' to ' + endIndex)
+      this.loading = true
+      try {
+        this.thumbnails = this.sortList(this.sortForm.controls['sort'].value, await this.apiService.many(this.collection, this.listSource.value.filter((item, index) => index >= this.grabFromIndexSource.value && index <= endIndex).map(item => item._id)))
+      } catch (err) {
+        console.log(err)
       }
+      this.loading = false
     }
   }
 

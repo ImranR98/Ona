@@ -1,12 +1,21 @@
 <div fxLayout="column" fxLayoutGap="1em" style="height: 100%;">
-    <mat-card>
-        <mat-card-title>{{collection}}</mat-card-title>
-        <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
-            folder, or
-            folder scanning may still be in progress.</mat-card-subtitle>
+    <mat-card fxLayout="row wrap" fxLayoutAlign="space-between center">
+        <div>
+            <mat-card-title>{{collection}}</mat-card-title>
+            <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
+                folder, or
+                folder scanning may still be in progress.</mat-card-subtitle>
+        </div>
+        <form [formGroup]="sortForm" fxLayout="row" *ngIf="thumbnails.length > 0">
+            <mat-form-field fxFlex="100%">
+                <mat-label>Sort</mat-label>
+                <mat-select formControlName="sort">
+                    <mat-option *ngFor="let sort of sorts; let i = index" value="{{i}}">{{sort}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </form>
     </mat-card>
-    <div fxLayout="column" fxLayoutGap="1em" *ngIf="thumbnails.length > 0" infiniteScroll
-        [infiniteScrollDistance]="50" [infiniteScrollThrottle]="0" (scrolled)="onScroll()">
+    <div fxLayout="column" fxLayoutGap="1em" *ngIf="thumbnails.length > 0">
         <mat-grid-list role="list" cols="15" rowHeight="1:1" fxHide fxShow.gt-lg
             style="overflow: auto; min-height:max-content;">
             <mat-grid-tile role="listitem" *ngFor="let thumbnail of thumbnails" fxLayout="column">
@@ -92,7 +101,15 @@
     <mat-card *ngIf="loading || (thumbnails.length == 0 && listSource.value.length > 0)">
         <mat-card-subtitle>Please wait...</mat-card-subtitle>
     </mat-card>
-    <mat-card *ngIf="thumbnails.length >= listSource.value.length">
-        <mat-card-subtitle>End</mat-card-subtitle>
+</div>
+
+<div style="height: 7em;"></div>
+
+<div style="position: fixed; bottom: 1em; left: 1em;" fxLayout="column">
+    <mat-card fxFill fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="1em" *ngIf="thumbnails.length > 0">
+        <span>Page:</span>
+        <mat-slider name="pageSlider" color="primary" [disabled]="loading" [max]="maxPages" min="1" [(ngModel)]="pageNo"
+            thumbLabel="true" (change)="sliderChanged($event)">
+        </mat-slider>
     </mat-card>
 </div>

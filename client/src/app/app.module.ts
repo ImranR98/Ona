@@ -15,7 +15,7 @@ import { MatCardModule } from '@angular/material/card'
 import { MatInputModule } from '@angular/material/input'
 import { MatButtonModule } from '@angular/material/button'
 import { MatFormFieldModule } from '@angular/material/form-field'
-import { ReactiveFormsModule } from '@angular/forms'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatToolbarModule } from '@angular/material/toolbar'
@@ -24,6 +24,7 @@ import { HeaderComponent } from './header/header.component'
 import { ConfigComponent } from './config/config.component'
 import { SingleItemComponent } from './single-item/single-item.component'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
+import { MatSliderModule } from '@angular/material/slider'
 
 @NgModule({
   declarations: [
@@ -51,7 +52,9 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll'
     MatTooltipModule,
     MatToolbarModule,
     MatSelectModule,
-    InfiniteScrollModule
+    InfiniteScrollModule,
+    MatSliderModule,
+    FormsModule
   ],
   providers: [
     {
