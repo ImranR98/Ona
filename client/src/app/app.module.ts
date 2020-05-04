@@ -25,6 +25,7 @@ import { ConfigComponent } from './config/config.component'
 import { SingleItemComponent } from './single-item/single-item.component'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { MatSliderModule } from '@angular/material/slider'
+import { MatDialogModule } from '@angular/material/dialog'
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { MatSliderModule } from '@angular/material/slider'
     MatSelectModule,
     InfiniteScrollModule,
     MatSliderModule,
-    FormsModule
+    FormsModule,
+    MatDialogModule
   ],
   providers: [
     {
@@ -63,6 +65,7 @@ import { MatSliderModule } from '@angular/material/slider'
       multi: true,
       deps: [Injector]
     }],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [SingleItemComponent]
 })
 export class AppModule { }

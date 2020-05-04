@@ -1,14 +1,18 @@
-<mat-card fxLayout="column" fxLayoutGap="1em">
-    <div>
-        <mat-card-title style="word-wrap: break-word">{{collection}} - {{itemID}}</mat-card-title>
-        <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
+<div fxLayout="column" fxLayoutGap="1em">
+    <div fxLayout="row wrap" fxLayoutGap="1em" fxLayoutAlign="space-between start">
+        <div>
+            <mat-card-title style="word-wrap: break-word; word-break: break-all;">{{data.collection}} - {{data._id}}
+            </mat-card-title>
+            <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
+        </div>
+        <button mat-raised-button color="warn" (click)="close()">Close</button>
     </div>
     <div *ngIf="itemSource.value">
-        <img *ngIf="itemSource.value.MIMEType.startsWith('image')" mat-card-image [src]="imageSrc"
-            style="height: 100%;">
+        <img *ngIf="itemSource.value.MIMEType.startsWith('image')" [src]="imageSrc"
+            style="max-height: 100%; max-width: 100%;">
         <video [src]="imageSrc" *ngIf="itemSource.value.MIMEType.startsWith('video')"
             style="width: 100% !important; height: auto !important;" controls>
             Your browser does not support the video tag.
         </video>
     </div>
-</mat-card>
+</div>

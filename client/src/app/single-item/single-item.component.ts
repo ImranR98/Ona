@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, SecurityContext } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { Component, OnInit, OnDestroy, SecurityContext, Inject } from '@angular/core'
+import { Router } from '@angular/router'
 import { ApiService } from '../services/api.service'
 import { BehaviorSubject, Subscription } from 'rxjs'
 import { ErrorService } from '../services/error.service'
-import { environment } from 'src/environments/environment'
 import { DomSanitizer } from '@angular/platform-browser'
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
 
 @Component({
   selector: 'app-single-item',
@@ -13,11 +13,9 @@ import { DomSanitizer } from '@angular/platform-browser'
 })
 export class SingleItemComponent implements OnInit, OnDestroy {
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer) { }
+  constructor(private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer, private dialogRef: MatDialogRef<SingleItemComponent>, @Inject(MAT_DIALOG_DATA) public data: { collection: string, _id: string } | null, private dialog: MatDialog) { }
 
   subs: Subscription[] = []
-  collection
-  itemID
   dateString = ''
   imageSrc: any = '//:0'
 
@@ -25,30 +23,31 @@ export class SingleItemComponent implements OnInit, OnDestroy {
   item = this.itemSource.asObservable()
 
   ngOnInit(): void {
-    this.subs.push(this.activatedRoute.paramMap.subscribe(params => {
-      this.collection = params.get('collection')
-      this.itemID = params.get('item')
-      if (!this.collection) {
+    if (this.data) {
+      if (!this.data.collection) {
         alert('Folder name not provided.')
         this.router.navigate(['/choice'])
       }
-      if (!this.itemID) {
+      if (!this.data._id) {
         alert('Item name not provided.')
-        this.router.navigate([`/gallery/${this.collection}`])
+        this.router.navigate([`/gallery/${this.data.collection}`])
       }
-      this.apiService.single(this.collection, this.itemID).then(data => {
+      this.apiService.single(this.data.collection, this.data._id).then(data => {
         this.itemSource.next(data)
       }).catch(err => {
         alert(this.errorService.stringifyError(err))
       })
-    }))
+    } else {
+      alert('Data not provided.')
+      this.router.navigate([`/choice`])
+    }
 
     this.item.subscribe(item => {
       if (item) {
         let rawDate = item.DateTimeOriginal.rawValue
         let date = new Date(rawDate.replace(':', '-').replace(':', '-'))
         this.dateString = `${date.toDateString()} ${rawDate.split(' ')[1]}`
-        this.apiService.content(this.collection, this.itemID).then((blob: any) => {
+        this.apiService.content(this.data.collection, this.data._id).then((blob: any) => {
           this.imageSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob))
         })
       }
@@ -57,6 +56,10 @@ export class SingleItemComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach(sub => sub.unsubscribe())
+  }
+
+  close() {
+    this.dialogRef.close();
   }
 
 }

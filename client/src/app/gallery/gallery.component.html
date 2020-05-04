@@ -1,5 +1,5 @@
 <div fxLayout="column" fxLayoutGap="1em" style="height: 100%;">
-    <mat-card fxLayout="row wrap" fxLayoutAlign="space-between center">
+    <mat-card fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-between center" fxLayoutAlign.lt-sm="space-between start">
         <div>
             <mat-card-title>{{collection}}</mat-card-title>
             <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
@@ -9,7 +9,7 @@
         <form [formGroup]="sortForm" fxLayout="row" *ngIf="thumbnails.length > 0">
             <mat-form-field fxFlex="100%">
                 <mat-label>Sort</mat-label>
-                <mat-select formControlName="sort">
+                <mat-select formControlName="sort" [value]="0">
                     <mat-option *ngFor="let sort of sorts; let i = index" value="{{i}}">{{sort}}</mat-option>
                 </mat-select>
             </mat-form-field>
@@ -22,9 +22,13 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="center center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
+                    <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
-                        Play
+                        Video
+                    </div>
+                    <div style="color: white; font-weight: bold;">
+                        {{thumbnail.DateTimeOriginal.rawValue.split(' ')[0].replace(':','-').replace(':','-')}}
                     </div>
                 </div>
             </mat-grid-tile>
@@ -35,7 +39,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -52,7 +56,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -69,7 +73,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -86,7 +90,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" routerLink="/gallery/{{collection}}/{{thumbnail._id}}">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video

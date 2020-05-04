@@ -22,8 +22,8 @@ $light-mode-theme: mat-light-theme($light-mode-primary, $light-mode-accent, $lig
 @media (prefers-color-scheme: dark) {
   @include angular-material-theme($dark-mode-theme);
   .font-weight-bold {
-    background-color: mat-color($dark-mode-accent) !important;
-    color: #000 !important;
+    font-weight: bold;
+    color: #FFF !important;
   }
 
   html {
@@ -36,8 +36,7 @@ $light-mode-theme: mat-light-theme($light-mode-primary, $light-mode-accent, $lig
   @include angular-material-theme($light-mode-theme);
   .font-weight-bold {
     font-weight: bold;
-    background-color: mat-color($light-mode-accent) !important;
-    color: #000 !important;
+    color: #FFF !important;
   }
 
   html {

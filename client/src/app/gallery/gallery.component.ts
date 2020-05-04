@@ -5,6 +5,8 @@ import { BehaviorSubject, Subscription } from 'rxjs'
 import { ErrorService } from '../services/error.service'
 import { FormGroup, FormControl } from '@angular/forms'
 import { MatSliderChange } from '@angular/material/slider'
+import { MatDialog } from '@angular/material/dialog'
+import { SingleItemComponent } from '../single-item/single-item.component'
 
 @Component({
   selector: 'app-gallery',
@@ -13,13 +15,9 @@ import { MatSliderChange } from '@angular/material/slider'
 })
 export class GalleryComponent implements OnInit, OnDestroy {
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService, private errorService: ErrorService) { }
+  constructor(private activatedRoute: ActivatedRoute, private router: Router, private apiService: ApiService, private errorService: ErrorService, private dialog: MatDialog) { }
 
   loading = false
-
-  sortForm = new FormGroup({
-    sort: new FormControl(0)
-  })
 
   collection
   loadAtATime = 100
@@ -30,6 +28,10 @@ export class GalleryComponent implements OnInit, OnDestroy {
   subs: Subscription[] = []
   thumbnails = []
   sorts = ['Date (Desc.)', 'Date (Asc.)', 'Name (Desc.)', 'Name (Asc.)']
+
+  sortForm = new FormGroup({
+    sort: new FormControl('0')
+  })
 
   listSource = new BehaviorSubject([])
   list = this.listSource.asObservable()
@@ -118,12 +120,20 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }
   }
 
+  openItem(id) {
+    if (!this.loading) {
+      this.dialog.open(SingleItemComponent, {
+        data: {
+          collection: this.collection,
+          _id: id
+        },
+        maxHeight: '100vh',
+        maxWidth: '100%'
+      });
+    }
+  }
+
   ngOnDestroy() {
     this.subs.forEach(sub => sub.unsubscribe())
   }
 }
-
-/*
-TODO:
-- Try making single item viewing part of the same component, so that thumbnails don't need to be reloaded after viewing every single item.
-*/
