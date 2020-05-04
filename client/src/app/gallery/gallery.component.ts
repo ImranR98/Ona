@@ -22,7 +22,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   })
 
   collection
-  loadAtATime = 200
+  loadAtATime = 100
 
   pageNo = 1
   maxPages = 1
@@ -81,7 +81,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   prevPage() {
     this.toPage(--this.pageNo)
   }
-  
+
   toPage(num: number) {
     if (((num - 1) * this.loadAtATime <= this.listSource.value.length - 1) && ((num - 1) * this.loadAtATime >= 0)) {
       this.grabFromIndexSource.next((num - 1) * this.loadAtATime)
@@ -108,7 +108,6 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (this.collection) {
       let endOfList = (this.listSource.value.length - 1 > 0 ? this.listSource.value.length - 1 : 0)
       let endIndex = this.grabFromIndexSource.value + this.loadAtATime - 1 < endOfList ? this.grabFromIndexSource.value + this.loadAtATime - 1 : endOfList
-      console.log('Grabbing from ' + this.grabFromIndexSource.value + ' to ' + endIndex)
       this.loading = true
       try {
         this.thumbnails = this.sortList(this.sortForm.controls['sort'].value, await this.apiService.many(this.collection, this.listSource.value.filter((item, index) => index >= this.grabFromIndexSource.value && index <= endIndex).map(item => item._id)))

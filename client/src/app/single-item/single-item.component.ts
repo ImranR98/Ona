@@ -49,11 +49,7 @@ export class SingleItemComponent implements OnInit, OnDestroy {
         let date = new Date(rawDate.replace(':', '-').replace(':', '-'))
         this.dateString = `${date.toDateString()} ${rawDate.split(' ')[1]}`
         this.apiService.content(this.collection, this.itemID).then((blob: any) => {
-          var reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onloadend = () => {
-            this.imageSrc = this.sanitizer.bypassSecurityTrustUrl(`${reader.result}`)
-          }
+          this.imageSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob))
         })
       }
     })

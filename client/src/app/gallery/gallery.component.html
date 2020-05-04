@@ -107,7 +107,7 @@
 
 <div style="position: fixed; bottom: 1em; left: 1em;" fxLayout="column">
     <mat-card fxFill fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="1em" *ngIf="thumbnails.length > 0">
-        <span>Page:</span>
+        <span>Page {{pageNo}} of {{maxPages}}:</span>
         <mat-slider name="pageSlider" color="primary" [disabled]="loading" [max]="maxPages" min="1" [(ngModel)]="pageNo"
             thumbLabel="true" (change)="sliderChanged($event)">
         </mat-slider>
