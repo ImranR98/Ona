@@ -2,9 +2,15 @@
     <mat-card fxLayout="column" fxFlex="100%">
         <mat-card-title>Folders</mat-card-title>
         <mat-card-subtitle *ngIf="dirs.length == 0">No folders added yet.</mat-card-subtitle>
-        <div *ngFor="let dir of dirs" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="1em">
-            <a routerLink="/gallery/{{dir.collection}}" style="word-break: break-all;">{{dir.collection}} - {{dir.dir}}</a>
-            <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
+        <div *ngFor="let dir of dirs" fxLayout="row" fxLayout.lt-sm="column" fxLayoutAlign="space-between center"
+            fxLayoutAlign.lt-sm="default default" fxLayoutGap="1em">
+            <a routerLink="/gallery/{{dir.collection}}" style="word-break: break-all;">{{dir.collection}} -
+                {{dir.dir}}</a>
+            <div fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="space-between center">
+                <span>Status: <strong *ngIf="dir.status">{{dir.status.toUpperCase()}}</strong><strong
+                        *ngIf="!dir.status">WAITING</strong></span>
+                <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
+            </div>
         </div>
     </mat-card>
     <mat-card fxLayout="column">

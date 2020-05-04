@@ -38,6 +38,7 @@ const log = (object, collection, consoleToo = true) => {
 
 // Runs a single scan
 const scanSync = async (collection, dir) => {
+    process.send('scanning')
     // Ensure the argument is a valid directory, then get all file names in it
     let files = []
     try {
@@ -149,7 +150,7 @@ const scanSync = async (collection, dir) => {
         await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.db, collection, '_id', idsToRemove)
         log(`Removed ${idsToRemove.length} files.`, collection)
     }
-
+    process.send('ready')
 }
 
 // Runs scans on a loop forever (until the process is killed or an error occurs)
@@ -172,6 +173,8 @@ const scanSyncLoop = async () => {
         await functions.sleep(variables.config.scanInterval) // Pause between scans
     }
 }
+
+process.send('started') // Set status to started
 
 // Start scanning
 scanSyncLoop()

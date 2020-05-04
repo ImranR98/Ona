@@ -56,6 +56,11 @@ checkIfAuthenticated = expressJwt({
 // An array of all scanSync.js processes
 let scanners = []
 
+// Kill all scanners when this process exits
+process.on('exit', () => {
+	scanners.forEach(scanner => scanner.processObj.kill())
+})
+
 // Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
 if (variables.config.logDir) {
@@ -90,9 +95,6 @@ const log = (object, consoleToo = true) => {
 	}
 }
 
-// Clean the scanners array to remove any dead scanners
-const cleanScanners = () => scanners = scanners.filter(scanner => !scanner.processObj.killed)
-
 // Start a scanner
 const startScanner = async (collection, dir, newScanner = false) => {
 	try {
@@ -102,22 +104,43 @@ const startScanner = async (collection, dir, newScanner = false) => {
 		if (newScanner) throw err
 		else await stopScanner(collection)
 	}
-	scanners.push({
-		collection,
-		dir,
-		processObj: node('./scanSync.js', [collection, dir]).on('exit', cleanScanners)
+	if (scanners.filter(scanner => scanner.collection == collection).length == 0) {
+		scanners.push({
+			collection,
+			dir,
+			processObj: node('./scanSync.js', [collection, dir]).on('exit', () => {
+				setScannerStatus(collection, 'error')
+			}).on('message', (message) => {
+				setScannerStatus(collection, message)
+			}),
+			status: 'started'
+		})
+		if (newScanner) await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, [{ _id: collection, dir }])
+	} else {
+		'Already exists.'
+	}
+}
+
+// Set the status of a specific scanner to a string
+const setScannerStatus = (collection, status) => {
+	scanners = scanners.map(scanner => {
+		if (scanner.collection == collection) {
+			scanner.status = status
+		}
+		return scanner
 	})
-	if (newScanner) await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, [{ _id: collection, dir }])
 }
 
 // Stop a scanner by its collection
 const stopScanner = async (collection) => {
-	await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, '_id', [collection])
-	await functions.removeCollectionFromMongo(variables.constants.url, variables.constants.db, collection)
+	if ((await functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, [collection])).length > 0) {
+		await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, '_id', [collection])
+		await functions.removeCollectionFromMongo(variables.constants.url, variables.constants.db, collection)
+	}
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.processObj.kill()
+	scanners = scanners.filter(scanner => scanner.collection != collection)
 	log(`Scanner for ${collection} was stopped and deleted.`)
-	cleanScanners()
 }
 
 // ROUTES START HERE
@@ -312,7 +335,7 @@ app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 
 // Get the list of tracked collections
 app.get('/dirs', checkIfAuthenticated, (req, res) => {
-	res.send(scanners.map(scanner => { return { collection: scanner.collection, dir: scanner.dir } }))
+	res.send(scanners.map(scanner => { return { collection: scanner.collection, dir: scanner.dir, status: scanner.status } }))
 })
 
 //All other routes are handled by the Angular App which is served here

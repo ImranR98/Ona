@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, AfterViewInit } from '@angular/core'
 import { ApiService } from '../services/api.service'
 import { FormGroup, FormControl, Validators } from '@angular/forms'
 import { ErrorService } from '../services/error.service'
+import { BehaviorSubject } from 'rxjs'
+import { HttpClient } from '@angular/common/http'
 
 @Component({
   selector: 'app-choice',
@@ -19,22 +21,29 @@ export class ChoiceComponent implements OnInit {
 
   dirs = []
 
-  ngOnInit(): void {
+  getDirs() {
     this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(this.errorService.stringifyError(err)))
+  }
+
+  ngOnInit(): void {
+    this.getDirs()
+    setInterval(() => {
+      this.getDirs()
+    }, 5000)
   }
 
   add() {
     this.apiService.add(this.addForm.controls['collection'].value, this.addForm.controls['dir'].value).then(() => {
-      this.dirs.push({ collection: this.addForm.controls['collection'].value, dir: this.addForm.controls['dir'].value })
+      this.getDirs()
       this.addForm.reset()
     }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
   remove(collection: string) {
     if (confirm(`Remove ${collection}? The files will not be deleted.`))
-    this.apiService.remove(collection).then(() => {
-      this.dirs = this.dirs.filter(dir => dir.collection != collection)
-    }).catch(err => alert(this.errorService.stringifyError(err)))
+      this.apiService.remove(collection).then(() => {
+        this.getDirs()
+      }).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
 }
