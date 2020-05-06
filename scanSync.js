@@ -7,7 +7,6 @@
 const fs = require('fs') // For interacting with the file system
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
-const md5File = require('md5-file') // To calculate file hashes
 
 // Check if the log directory exists
 let logDirExists = false
@@ -48,19 +47,32 @@ const scanSync = async (collection, dir) => {
         process.exit(-3)
     }
     process.send('hashing-files')
-    // Calculate hashes for all the files in the current directory
     if (files.length > 0) log(`Calculating hashes for ${files.length} files...`, collection)
+    // Calculate hashes for all the files in the current directory
+    let hashes = []
     try {
-        files = files.map(file => {
-            return {
-                file: file,
-                hash: md5File.sync(`${dir}/${file}`)
-            }
-        })
+        hashes = await functions.calculateFileArrayMD5(dir, JSON.parse(JSON.stringify(files)))
     } catch (err) {
         log(err, collection)
-        process.exit(-10)
+        process.exit(-4)
     }
+    if (files.length != hashes.length) {
+        log('Error hashing files.', collection)
+        process.exit(-5)
+    }
+    files = files.map((file, index) => {
+        return {
+            file: file,
+            hash: hashes[index]
+        }
+    })
+    files = files.filter(file => {
+        if (!file.hash) {
+            log(`A hash for ${file} could not be calculated and it will be ignored.`, collection)
+            return false
+        }
+        return true
+    })
     process.send('calculating-files')
     // Get any ids for files already in the collection
     let idsInDB = []
@@ -68,11 +80,11 @@ const scanSync = async (collection, dir) => {
         idsInDB = await functions.getIdsFromMongo(variables.constants.url, variables.constants.db, collection)
     } catch (err) {
         log(err, collection)
-        process.exit(-4)
+        process.exit(-6)
     }
     // At this point, you have all ids already in the DB, and all ids for files in the actual dir
     // Figure out what files to add/delete from to/from the DB
-    let filesToAdd = files.filter(file => {
+    let filesToAddHashes = files.filter(file => {
         let found = false
         for (let i = 0; i < idsInDB.length; i++) {
             if (file.hash == idsInDB[i]) found = true
@@ -89,16 +101,17 @@ const scanSync = async (collection, dir) => {
     })
     process.send('getting-metadata')
     // Get the metadata for every file to add
-    if (filesToAdd.length > 0) log(`Getting metadata for ${filesToAdd.length} files...`, collection)
-    filesToAdd = await functions.exiftoolRead(dir, filesToAdd.map(file => file.file))
-    let originalFilesLength = filesToAdd.length
-    process.send('rehashing-files')
-    // Recalculate hashes for files to be added // TODO: Redundant - re-use previously calculated hashes
-    if (filesToAdd.length > 0) log(`Re-calculating hashes for ${filesToAdd.length} files...`, collection)
-    filesToAdd = filesToAdd.map(file => {
-        file._id = md5File.sync(file.SourceFile)
-        return file
+    if (filesToAddHashes.length > 0) log(`Getting metadata for ${filesToAddHashes.length} files...`, collection)
+    let filesToAdd = await functions.exiftoolRead(dir, filesToAddHashes.map(file => file.file))
+    if (filesToAddHashes.length != filesToAdd.length) {
+        log('Error getting metadata.', collection)
+        process.exit(-7)
+    }
+    filesToAdd = filesToAdd.map((fileToAdd, index) => {
+        fileToAdd._id = filesToAddHashes[index].hash
+        return fileToAdd
     })
+    let originalFilesLength = filesToAdd.length
     process.send('processing-files')
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
@@ -192,7 +205,7 @@ const scanSyncLoop = async () => {
             await scanSync(collection, dir)
         } catch (err) {
             log(err, collection)
-            process.exit(-9)
+            process.exit(-8)
         }
         log(`Will scan again in ${variables.config.scanInterval} seconds...`, collection, false)
         await functions.sleep(variables.config.scanInterval) // Pause between scans

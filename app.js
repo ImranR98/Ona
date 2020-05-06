@@ -92,7 +92,9 @@ const log = (object, consoleToo = true) => {
 
 // Kill all scanners when this process exits
 process.on('exit', () => {
-	scanners.forEach(scanner => scanner.processObj.kill())
+	scanners.forEach(scanner => {
+		if (!scanner.killed) scanner.processObj.kill()
+	})
 	log(`Exiting process.`)
 })
 
@@ -361,8 +363,6 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 TODO:
 	ASAP:
 		Server:
-			Improve file hashing step performance by multi threading it.
-			Remove extra re-hashing step.
 			Record what date is used (DateTimeOriginal, CreateDate, or MediaCreateDate).
 			Record any ignored files or invalid thumbnail files.
 

@@ -8,6 +8,8 @@ const ExifTool = require('exiftool-vendored').ExifTool // For interacting with e
 const sharp = require('sharp') // For generating thumbnails
 const ffmpeg = require('ffmpeg-static') // For generating vieo thumbnails 
 const mongodb = require('mongodb') // For interacting with the database
+const fork = require('child_process').fork // For running child Node processes
+const cpus = require('os').cpus().length // Number of CPU cores available
 const fs = require('fs') // For interacting with the file system
 const cmd = require('child_process').execSync // For executing OS terminal commands
 
@@ -21,7 +23,7 @@ module.exports.resizeImage = async (path, destDir, destName, width, height) => a
 module.exports.getVideoFrame = async (path, destDir, destName) => cmd(`${ffmpeg} -i '${path}' -frames:v 1 '${destDir}/${destName}' -y`, { stdio: 'pipe' }).toString()
 // Read a file's metadata with exiftool
 module.exports.exiftoolRead = async (dir, files) => {
-    let exiftool = new ExifTool({ maxProcs: 16 })
+    let exiftool = new ExifTool({ maxProcs: cpus })
     let promises = []
     files.forEach(file => {
         promises.push(exiftool.read(`${dir}/${file}`))
@@ -122,4 +124,44 @@ module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, 
         fs.unlinkSync(`${tempDir}/${fileName}`)
     }
     return result
+}
+
+// Takes a directory name and an array of strings of file names for files in that directory
+// Returns an array of MD5 hashes for the files
+// Uses multi-threading for efficiency
+// Returns null for all cases where MD5 could not be calculated
+// Uses md5-array.js for the actual calculations
+module.exports.calculateFileArrayMD5 = async (dir, files) => {
+    // Split the array into chunks based on the number of CPUs
+    let chunkLength = files.length / cpus
+    let fileGroups = []
+    while (files.length) {
+        fileGroups.push(files.splice(0, chunkLength))
+    }
+    if (fileGroups.length > cpus) {
+        fileGroups[0] = fileGroups[0].concat(fileGroups.pop())
+    }
+
+    // Start a new md5-file-array.js process for each chunk
+    const promises = []
+    fileGroups.forEach(fileGroup => {
+        promises.push(new Promise((resolve, reject) => {
+            fork('./md5-file-array.js', [dir, JSON.stringify(fileGroup)], { stdio: 'inherit' }).on('message', ({ md5Array, pid }) => {
+                resolve(md5Array)
+            }).on('exit', code => {
+                if (code != 0) reject()
+            })
+        }))
+    })
+
+    // Wait for all chunks to be processes
+    let md5Arrays = await Promise.all(promises)
+
+    // Concatenate all the MD5 results into one array
+    let finalArray = []
+    md5Arrays.forEach(md5Array => {
+        finalArray = finalArray.concat(md5Array)
+    })
+
+    return finalArray
 }
