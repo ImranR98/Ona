@@ -63,15 +63,15 @@ process.on('exit', () => {
 
 // Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
-if (variables.config.logDir) {
-	if (fs.existsSync(variables.config.logDir)) {
-		if (fs.statSync(variables.config.logDir).isDirectory()) {
+if (process.env.LOGDIR) {
+	if (fs.existsSync(process.env.LOGDIR)) {
+		if (fs.statSync(process.env.LOGDIR).isDirectory()) {
 			logDirExists = true
 		}
 	}
 	if (!logDirExists) {
 		try {
-			fs.mkdirSync(variables.config.logDir)
+			fs.mkdirSync(process.env.LOGDIR)
 		} catch (err) {
 			console.log('WARNING: Log directory could not be created, so logs will not be saved.')
 		}
@@ -83,8 +83,8 @@ const log = (object, consoleToo = true) => {
 	try {
 		if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
 		object = `${new Date().toString()}: ${object}`
-		if (consoleToo || variables.config.consoleLogEverything) console.log(object)
-		const logFilePath = `${variables.config.logDir}/app.txt`
+		if (consoleToo) console.log(object)
+		const logFilePath = `${process.env.LOGDIR}/app.txt`
 		try {
 			if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
 		} catch (err) {

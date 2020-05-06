@@ -13,7 +13,5 @@ module.exports.constants = {
 
 // Change these as needed
 module.exports.config = {
-    logDir: null, // Where to store log files (can be left empty/null)
-    consoleLogEverything: false, // Overrides the various log functions to ensure that everything is logged to the console
     scanInterval: 300 // How long to wait between scans
 }

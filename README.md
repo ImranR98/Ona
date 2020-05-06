@@ -11,11 +11,14 @@ Scan specific directories on your server for photos and videos and display them 
 ### Configuration
 An RSA public/private key pair is needed for user sessions, along with a duration, in seconds, that each session lasts. These are needed as environment variables and can be defined in a .env file in the root directory.
 
+Optionally, a directory can also be specified as LOGDIR, where extensive logs will be created. If this is not specified, less verbose logs will still be shown in the console.
+
 Example of a valid .env file (Note that variables must fit in one line, so the public/private keys have '\n' in place of line breaks. This is accounted for in app.js):
 ```
 RSA_PRIVATE_KEY=-----BEGIN RSA PRIVATE KEY-----\n...\n...\n-----END RSA PRIVATE KEY-----
 RSA_PUBLIC_KEY=-----BEGIN RSA PUBLIC KEY-----\n...\n...\n-----END RSA PUBLIC KEY-----
 EXPIRES_IN=86400
+LOGDIR=/home/ubuntu/Desktop/gallery15-logs
 ```
 
 All other configuration variables are in variables.js.

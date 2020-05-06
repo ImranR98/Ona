@@ -11,9 +11,9 @@ const md5File = require('md5-file') // To calculate file hashes
 
 // Check if the log directory exists
 let logDirExists = false
-if (variables.config.logDir) {
-    if (fs.existsSync(variables.config.logDir)) {
-        if (fs.statSync(variables.config.logDir).isDirectory()) {
+if (process.env.LOGDIR) {
+    if (fs.existsSync(process.env.LOGDIR)) {
+        if (fs.statSync(process.env.LOGDIR).isDirectory()) {
             logDirExists = true
         }
     }
@@ -24,8 +24,8 @@ const log = (object, collection, consoleToo = true) => {
     try {
         if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
         object = `${new Date().toString()}: ${collection}: ${object}`
-        if (consoleToo || variables.config.consoleLogEverything) console.log(object)
-        const logFilePath = `${variables.config.logDir}/scanner-${collection}.txt`
+        if (consoleToo) console.log(object)
+        const logFilePath = `${process.env.LOGDIR}/scanner-${collection}.txt`
         try {
             if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
         } catch (err) {
