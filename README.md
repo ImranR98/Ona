@@ -23,7 +23,7 @@ All other configuration variables are in variables.js.
 ## Deployment
 Run `npm i` - this is only required once to install dependencies.
 
-Run ```node app.js``` to run the application.
+Run ```npm start``` to run the application.
 
 ## Authors
 * **Imran Remtulla** - [ImranR98](https://github.com/ImranR98)
