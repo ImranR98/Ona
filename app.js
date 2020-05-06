@@ -356,3 +356,28 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 		log(err)
 	})
 })
+
+/*
+TODO:
+	ASAP:
+		Server:
+			Record what date is used (DateTimeOriginal, CreateDate, or MediaCreateDate)
+			Record any ignored files or invalid thumbnail files
+
+		Client:
+			Page switching:
+				Make the slider show dates/letters instead of page numbers.
+				Add manual forward/back buttons instead of just the slider.
+				Hide items when page is being switched.
+
+			Item view:
+				Provide more metadata about the item.
+				Say whether the DateTimeOriginal, CreateDate, or MediaCreateDate is being used (this will need a server side change mentioned above).
+
+		Other:
+			Show ignored files (and ignored reason on config page or folders page, tbd).
+			Show invalid thumbnail files in a similar location as above.
+
+	Later:
+		Overhaul UI - currently looks ugly.
+*/
