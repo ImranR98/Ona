@@ -117,12 +117,8 @@ const scanSync = async (collection, dir) => {
     filesToAdd = filesToAdd.filter(file => {
         if (!file || file == {}) return false
         if (!file.MIMEType) {
-            log('A file has no MIMEType and will be ignored.', collection)
-            if (file.FileName) log(file.FileName, collection)
-            else {
-                log('FileName does not exist. Check full logs for the file object', collection)
-                log(file, collection, false)
-            }
+            log(`${file.FileName} has no MIMEType and will be ignored.`, collection)
+            log(file, collection, false)
             return false
         }
         // Make sure the DateTimeOriginal (or CreateDate or MediaCreateDate as fallback options) have the rawValue attribute
@@ -130,12 +126,8 @@ const scanSync = async (collection, dir) => {
         if (file.CreateDate) if (!file.CreateDate.rawValue) delete file.CreateDate
         if (file.MediaCreateDate) if (!file.MediaCreateDate.rawValue) delete file.MediaCreateDate
         if (!file.DateTimeOriginal && !file.CreateDate && !file.MediaCreateDate) {
-            log('File has no DateTimeOriginal or CreateDate or MediaCreateDate and will be ignored.', collection)
-            if (file.FileName) log(file.FileName, collection)
-            else {
-                log('FileName does not exist. Check full logs for the file object', collection)
-                log(file, collection, false)
-            }
+            log(`${file.FileName} has no DateTimeOriginal or CreateDate or MediaCreateDate and will be ignored.`, collection)
+            log(file, collection, false)
             return false
         }
         return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && (file.DateTimeOriginal || file.CreateDate || file.MediaCreateDate) // Must be an image/video and have the DateTimeOriginal or CreateDate or MediaCreateDate tags
@@ -165,12 +157,8 @@ const scanSync = async (collection, dir) => {
                 filesToAdd[i].thumbnail = await functions.getBase64Thumbnail(filesToAdd[i].SourceFile, filesToAdd[i].FileName, 200, 200, filesToAdd[i].MIMEType.startsWith('video'))
             } catch (err) {
                 filesToAdd[i].thumbnail = variables.constants.bas64ErrorThumbnail
-                log('Error generating thumbnail for file.', collection)
-                if (filesToAdd[i].FileName) log(filesToAdd[i].FileName, collection)
-                else {
-                    log('FileName does not exist. Check full logs for the file object', collection)
-                    log(filesToAdd[i], collection, false)
-                }
+                log(`Error generating thumbnail for ${filesToAdd[i].FileName}.`, collection)
+                log(filesToAdd[i], collection, false)
                 log(err, collection)
             }
         }
