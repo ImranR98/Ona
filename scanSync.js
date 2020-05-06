@@ -86,16 +86,19 @@ const scanSync = async (collection, dir) => {
         }
         return !found
     })
+    process.send('getting-metadata')
     // Get the metadata for every file to add
     if (filesToAdd.length > 0) log(`Getting metadata for ${filesToAdd.length} files...`, collection)
     filesToAdd = await functions.exiftoolRead(dir, filesToAdd.map(file => file.file))
     let originalFilesLength = filesToAdd.length
+    process.send('rehashing-files')
     // Recalculate hashes for files to be added // TODO: Redundant - re-use previously calculated hashes
     if (filesToAdd.length > 0) log(`Calculating hashes for ${filesToAdd.length} files...`, collection)
     filesToAdd = filesToAdd.map(file => {
         file._id = md5File.sync(file.SourceFile)
         return file
     })
+    process.send('processing-files')
     // Filter out invalid files
     filesToAdd = filesToAdd.filter(file => {
         if (!file || file == {}) return false
