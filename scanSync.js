@@ -49,7 +49,7 @@ const scanSync = async (collection, dir) => {
     }
     process.send('hashing-files')
     // Calculate hashes for all the files in the current directory
-    if (filesToAdd.length > 0) log(`Calculating hashes for ${files.length} files...`, collection)
+    if (files.length > 0) log(`Calculating hashes for ${files.length} files...`, collection)
     try {
         files = files.map(file => {
             return {
