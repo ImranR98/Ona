@@ -49,6 +49,7 @@ const scanSync = async (collection, dir) => {
     }
     process.send('hashing-files')
     // Calculate hashes for all the files in the current directory
+    if (filesToAdd.length > 0) log(`Calculating hashes for ${files.length} files...`, collection)
     try {
         files = files.map(file => {
             return {
@@ -93,7 +94,7 @@ const scanSync = async (collection, dir) => {
     let originalFilesLength = filesToAdd.length
     process.send('rehashing-files')
     // Recalculate hashes for files to be added // TODO: Redundant - re-use previously calculated hashes
-    if (filesToAdd.length > 0) log(`Calculating hashes for ${filesToAdd.length} files...`, collection)
+    if (filesToAdd.length > 0) log(`Re-calculating hashes for ${filesToAdd.length} files...`, collection)
     filesToAdd = filesToAdd.map(file => {
         file._id = md5File.sync(file.SourceFile)
         return file
@@ -131,12 +132,6 @@ const scanSync = async (collection, dir) => {
         if (!file.DateTimeOriginal) {
             if (file.CreateDate) file.DateTimeOriginal = file.CreateDate
             else file.DateTimeOriginal = file.MediaCreateDate
-            log('File has no DateTimeOriginal so CreateDate or MediaCreateDate will be used.', collection)
-            if (file.FileName) log(file.FileName, collection)
-            else {
-                log('FileName does not exist. Check full logs for the file object', collection)
-                log(file, collection, false)
-            }
         }
         return file
     })
@@ -159,6 +154,15 @@ const scanSync = async (collection, dir) => {
             }
         }
     }
+    // Filter out duplicate file ids...
+    process.send('filtering-duplicates')
+    log(`Filtering out duplicate files...`, collection)
+    let ids = Array.from(new Set(filesToAdd.map(file => file._id)))
+    filesToAdd = ids.map(id => {
+        let items = filesToAdd.filter(file => file._id == id)
+        if (items.length > 0) return items[0]
+        else return null
+    }).filter(file => !!file)
     // Add and remove based on the results of above
     if (filesToAdd.length > 0) {
         log(`${filesToAdd.length} files to add...`, collection)

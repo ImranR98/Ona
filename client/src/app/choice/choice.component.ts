@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms'
 import { ErrorService } from '../services/error.service'
 import { BehaviorSubject } from 'rxjs'
 import { HttpClient } from '@angular/common/http'
+import { AuthService } from '../services/auth.service'
 
 @Component({
   selector: 'app-choice',
@@ -12,7 +13,7 @@ import { HttpClient } from '@angular/common/http'
 })
 export class ChoiceComponent implements OnInit {
 
-  constructor(private apiService: ApiService, private errorService: ErrorService) { }
+  constructor(private apiService: ApiService, private errorService: ErrorService, private authService: AuthService) { }
 
   addForm = new FormGroup({
     collection: new FormControl('', Validators.required),
@@ -21,14 +22,20 @@ export class ChoiceComponent implements OnInit {
 
   dirs = []
 
+  interval = null
+
   getDirs() {
     this.apiService.dirs().then(newDirs => this.dirs = newDirs).catch(err => alert(this.errorService.stringifyError(err)))
   }
 
   ngOnInit(): void {
     this.getDirs()
-    setInterval(() => {
-      this.getDirs()
+    this.interval = setInterval(() => {
+      if (this.authService.ifLoggedIn(false)) this.getDirs()
+      else if (this.interval) {
+        clearInterval(this.interval)
+        this.interval = null
+      }
     }, 5000)
   }
 
