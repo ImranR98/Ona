@@ -56,11 +56,6 @@ checkIfAuthenticated = expressJwt({
 // An array of all scanSync.js processes
 let scanners = []
 
-// Kill all scanners when this process exits
-process.on('exit', () => {
-	scanners.forEach(scanner => scanner.processObj.kill())
-})
-
 // Check if the log directory exists and warn if it couldn't be created
 let logDirExists = false
 if (process.env.LOGDIR) {
@@ -94,6 +89,12 @@ const log = (object, consoleToo = true) => {
 		console.log(err)
 	}
 }
+
+// Kill all scanners when this process exits
+process.on('exit', () => {
+	scanners.forEach(scanner => scanner.processObj.kill())
+	log(`Exiting process.`)
+})
 
 // Start a scanner
 const startScanner = async (collection, dir, newScanner = false) => {
