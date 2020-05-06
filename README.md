@@ -21,7 +21,9 @@ EXPIRES_IN=86400
 All other configuration variables are in variables.js.
 
 ## Deployment
-Run ```node app.js```
+Run `npm i` - this is only required once to install dependencies.
+
+Run ```node app.js``` to run the application.
 
 ## Authors
 * **Imran Remtulla** - [ImranR98](https://github.com/ImranR98)
