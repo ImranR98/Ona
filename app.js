@@ -361,8 +361,10 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 TODO:
 	ASAP:
 		Server:
-			Record what date is used (DateTimeOriginal, CreateDate, or MediaCreateDate)
-			Record any ignored files or invalid thumbnail files
+			Improve file hashing step performance by multi threading it.
+			Remove extra re-hashing step.
+			Record what date is used (DateTimeOriginal, CreateDate, or MediaCreateDate).
+			Record any ignored files or invalid thumbnail files.
 
 		Client:
 			Page switching:
