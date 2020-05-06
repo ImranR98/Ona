@@ -143,8 +143,16 @@ const scanSync = async (collection, dir) => {
     // For files that have no DateTimeOriginal (but have CreateDate or MediaCreateDate), CreateDate or MediaCreateDate is saved as DateTimeOriginal
     filesToAdd = filesToAdd.map(file => {
         if (!file.DateTimeOriginal) {
-            if (file.CreateDate) file.DateTimeOriginal = file.CreateDate
-            else file.DateTimeOriginal = file.MediaCreateDate
+            if (file.CreateDate) {
+                file.DateTimeOriginal = file.CreateDate
+                file.DateUsed = 'CreateDate'
+            }
+            else {
+                file.DateTimeOriginal = file.MediaCreateDate
+                file.DateUsed = 'MediaCreateDate'
+            }
+        } else {
+            file.DateUsed = 'DateTimeOriginal'
         }
         return file
     })

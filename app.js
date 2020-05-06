@@ -363,7 +363,6 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 TODO:
 	ASAP:
 		Server:
-			Record what date is used (DateTimeOriginal, CreateDate, or MediaCreateDate).
 			Record any ignored files or invalid thumbnail files.
 
 		Client:
