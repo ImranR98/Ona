@@ -369,16 +369,18 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 /*
 TODO:
 	ASAP:
-		Folder view:
-			Show what files are ignored or don't have thumbnails.
-			Make the slider show dates/letters instead of page numbers.
-			Add manual forward/back buttons instead of just the slider.
-			Hide items when page is being switched.
-
-		Item view:
-			Provide more metadata about the item.
-			Say whether the DateTimeOriginal, CreateDate, or MediaCreateDate is being used.
+		Server:
+			Go through all code and recheck to make sure everything is clean/efficient/optimized. Squish as many bugs as possible.
+			Remove current logging solution - it's messed up. Just console.log everything for now, user can always pipe to a file.
+		
+		Client:
+			On the config page, have a section to show all files that are ignored and the reason for ignoring. May need to create a route for that on the server.
+			As above, for files missing thumbnails.
+			On the gallery page, add manual forward/back buttons instead of just the slider.
+			On the gallery page, hide items from the previous page while loading items for the new page - current way seems unresponsive.
+			On the individual item view, provide more detailed item data.
+			On the individual item view, TRY to make images fit properly on all screen sizes :( .
 
 	Later:
-		Overhaul UI - currently looks ugly.
+		Overhaul UI - currently looks ugly. Try something other than material design library (IBM Carbon?).
 */
