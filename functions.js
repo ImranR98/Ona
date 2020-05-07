@@ -138,9 +138,6 @@ module.exports.calculateFileArrayMD5 = async (dir, files) => {
     while (files.length) {
         fileGroups.push(files.splice(0, chunkLength))
     }
-    if (fileGroups.length > cpus) {
-        fileGroups[0] = fileGroups[0].concat(fileGroups.pop())
-    }
 
     // Start a new md5-file-array.js process for each chunk
     const promises = []
