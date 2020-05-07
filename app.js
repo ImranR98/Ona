@@ -112,8 +112,8 @@ const startScanner = async (collection, dir, newScanner = false) => {
 			collection,
 			dir,
 			processObj: node('./scanSync.js', [collection, dir]).on('exit', () => {
-				log(`The scanner for ${collection} has crashed.`)
-				setScannerStatus(collection, 'error')
+				log(`The scanner for ${collection} has stopped.`)
+				setScannerStatus(collection, 'stopped')
 			}).on('message', (message) => {
 				setScannerStatus(collection, message)
 			}),
@@ -139,6 +139,8 @@ const setScannerStatus = (collection, status) => {
 const stopScanner = async (collection) => {
 	if ((await functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, [collection])).length > 0) {
 		await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.configdb, variables.constants.dirsCollection, '_id', [collection])
+	}
+	if (await functions.ifCollectionExists(variables.constants.url, variables.constants.db, collection)) {
 		await functions.removeCollectionFromMongo(variables.constants.url, variables.constants.db, collection)
 	}
 	let target = scanners.find(scanner => scanner.collection == collection)

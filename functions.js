@@ -108,6 +108,13 @@ module.exports.dropDB = async (url, db) => {
     await conn.close()
     return result
 }
+// Insert check if a MongoDB database collection exists
+module.exports.ifCollectionExists = async (url, db, collection) => {
+    let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
+    let result = !!((await (await conn.db(db).listCollections()).toArray()).find(coll => coll.name == collection))
+    await conn.close()
+    return result
+}
 // Generate a thumbnail for an image/video and return it in a base64 encoded string
 module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, video = false) => {
     let result = null
