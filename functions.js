@@ -133,7 +133,7 @@ module.exports.getBase64Thumbnail = async (pathToFile, fileName, width, height, 
 // Uses md5-array.js for the actual calculations
 module.exports.calculateFileArrayMD5 = async (dir, files) => {
     // Split the array into chunks based on the number of CPUs
-    let chunkLength = files.length / cpus
+    let chunkLength = Math.ceil(files.length / cpus)
     let fileGroups = []
     while (files.length) {
         fileGroups.push(files.splice(0, chunkLength))
@@ -142,13 +142,15 @@ module.exports.calculateFileArrayMD5 = async (dir, files) => {
     // Start a new md5-file-array.js process for each chunk
     const promises = []
     fileGroups.forEach(fileGroup => {
-        promises.push(new Promise((resolve, reject) => {
-            fork('./md5-file-array.js', [dir, JSON.stringify(fileGroup)], { stdio: 'inherit' }).on('message', ({ md5Array, pid }) => {
-                resolve(md5Array)
-            }).on('exit', code => {
-                if (code != 0) reject()
-            })
-        }))
+        if (fileGroup.length > 0) {
+            promises.push(new Promise((resolve, reject) => {
+                fork('./md5-file-array.js', [dir, JSON.stringify(fileGroup)], { stdio: 'inherit' }).on('message', ({ md5Array, pid }) => {
+                    resolve(md5Array)
+                }).on('exit', code => {
+                    if (code != 0) reject()
+                })
+            }))
+        }
     })
 
     // Wait for all chunks to be processes

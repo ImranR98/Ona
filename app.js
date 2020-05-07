@@ -112,6 +112,7 @@ const startScanner = async (collection, dir, newScanner = false) => {
 			collection,
 			dir,
 			processObj: node('./scanSync.js', [collection, dir]).on('exit', () => {
+				log(`The scanner for ${collection} has crashed.`)
 				setScannerStatus(collection, 'error')
 			}).on('message', (message) => {
 				setScannerStatus(collection, message)
@@ -243,13 +244,17 @@ app.post('/reset', checkIfAuthenticated, (req, res) => {
 app.post('/add', checkIfAuthenticated, (req, res) => {
 	log('Attempting to add a scanner...')
 	if (req.body.collection && req.body.dir) {
-		startScanner(req.body.collection, req.body.dir, true).then(() => {
-			log('Scanner added.')
-			res.send()
-		}).catch((err) => {
-			log(err)
-			res.status(500).send(err)
-		})
+		if (req.body.dir.startsWith('/')) {
+			startScanner(req.body.collection, req.body.dir, true).then(() => {
+				log('Scanner added.')
+				res.send()
+			}).catch((err) => {
+				log(err)
+				res.status(500).send(err)
+			})
+		} else {
+			log('Directory path must be absolute.')
+		}
 	} else {
 		log('Invaid add scanner request - collection and dir properties must exist in POST request body.')
 		res.status(400).send()
@@ -362,14 +367,15 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 /*
 TODO:
 	ASAP:
-		Page switching:
+		Folder view:
+			Show what files are ignored or don't have thumbnails.
 			Make the slider show dates/letters instead of page numbers.
 			Add manual forward/back buttons instead of just the slider.
 			Hide items when page is being switched.
 
 		Item view:
 			Provide more metadata about the item.
-			Say whether the DateTimeOriginal, CreateDate, or MediaCreateDate is being used (this will need a server side change mentioned above).
+			Say whether the DateTimeOriginal, CreateDate, or MediaCreateDate is being used.
 
 	Later:
 		Overhaul UI - currently looks ugly.

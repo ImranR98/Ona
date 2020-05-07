@@ -7,6 +7,7 @@
 const fs = require('fs') // For interacting with the file system
 const functions = require('./functions') // Import the functions file
 const variables = require('./variables') // Import the variables file
+const chokidar = require('chokidar')
 
 // Check if the log directory exists
 let logDirExists = false
@@ -35,30 +36,13 @@ const log = (object, collection, consoleToo = true) => {
     }
 }
 
-// Runs a single scan
-const scanSync = async (collection, dir) => {
-    process.send('scanning')
-    // Ensure the argument is a valid directory, then get all file names in it
-    let files = []
-    try {
-        files = fs.readdirSync(dir).filter(file => !fs.statSync(`${dir}/${file}`).isDirectory())
-    } catch (err) {
-        log(err, collection)
-        process.exit(-3)
-    }
-    process.send('hashing-files')
-    if (files.length > 0) log(`Calculating hashes for ${files.length} files...`, collection)
-    // Calculate hashes for all the files in the current directory
+// Takes a directory path and an array of file names of files in that dir, and returns an array of objects of the form
+// { file: file name, hash: file MD5 hash }
+const calculateHashes = async (dir, files) => {
     let hashes = []
-    try {
-        hashes = await functions.calculateFileArrayMD5(dir, JSON.parse(JSON.stringify(files)))
-    } catch (err) {
-        log(err, collection)
-        process.exit(-4)
-    }
+    hashes = await functions.calculateFileArrayMD5(dir, JSON.parse(JSON.stringify(files)))
     if (files.length != hashes.length) {
-        log('Error hashing files.', collection)
-        process.exit(-5)
+        throw 'Error hashing files.'
     }
     files = files.map((file, index) => {
         return {
@@ -68,147 +52,150 @@ const scanSync = async (collection, dir) => {
     })
     files = files.filter(file => {
         if (!file.hash) {
-            log(`A hash for ${file} could not be calculated and it will be ignored.`, collection)
+            log(`A hash for ${file} could not be calculated and it will be skipped.`, collection)
             return false
         }
         return true
     })
-    process.send('calculating-files')
-    // Get any ids for files already in the collection
-    let idsInDB = []
-    try {
-        idsInDB = await functions.getIdsFromMongo(variables.constants.url, variables.constants.db, collection)
-    } catch (err) {
-        log(err, collection)
-        process.exit(-6)
-    }
-    // At this point, you have all ids already in the DB, and all ids for files in the actual dir
-    // Figure out what files to add/delete from to/from the DB
-    let filesToAddHashes = files.filter(file => {
-        let found = false
-        for (let i = 0; i < idsInDB.length; i++) {
-            if (file.hash == idsInDB[i]) found = true
-        }
-        return !found
-    })
+    return files
+}
 
-    let idsToRemove = idsInDB.filter(idInDB => {
-        let found = false
-        for (let i = 0; i < files.length; i++) {
-            if (idInDB == files[i].hash) found = true
-        }
-        return !found
-    })
-    process.send('getting-metadata')
+// Takes an array of objects of the form { file: file name, hash: file MD5 hash } describing files in directory dir
+// Gets exiftool metadata for the files, validates them for Gallery15, sets any ignored flags, filters duplicates, and generates thumbnails
+// Returns an array of objects ready to add to the database
+const prepareFiles = async (dir, files) => {
     // Get the metadata for every file to add
-    if (filesToAddHashes.length > 0) log(`Getting metadata for ${filesToAddHashes.length} files...`, collection)
-    let filesToAdd = await functions.exiftoolRead(dir, filesToAddHashes.map(file => file.file))
-    if (filesToAddHashes.length != filesToAdd.length) {
-        log('Error getting metadata.', collection)
-        process.exit(-7)
+    let finalFiles = await functions.exiftoolRead(dir, files.map(file => file.file))
+    if (files.length != finalFiles.length) {
+        throw 'Error getting metadata.'
     }
-    filesToAdd = filesToAdd.map((fileToAdd, index) => {
-        fileToAdd._id = filesToAddHashes[index].hash
+    // Add the hashes from the original array
+    finalFiles = finalFiles.map((fileToAdd, index) => {
+        fileToAdd._id = files[index].hash
         return fileToAdd
     })
-    let originalFilesLength = filesToAdd.length
-    process.send('processing-files')
-    // Filter out invalid files
-    filesToAdd = filesToAdd.filter(file => {
-        if (!file || file == {}) return false
+    // Remove empty entries
+    finalFiles = finalFiles.filter(file => !(!file || file == {}))
+    // Set the ignore flag on invalid files
+    finalFiles = finalFiles.map(file => {
+        file.ignored = false
+        file.ignoredReason = ''
+        // Ignore if no MIMEType or if the MIMEType is invalid
         if (!file.MIMEType) {
-            log(`${file.FileName} has no MIMEType and will be ignored.`, collection)
-            log(file, collection, false)
-            return false
+            file.ignored = true
+            file.ignoredReason += 'No MIMEType '
+        } else if (!(file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/'))) {
+            file.ignored = true
+            file.ignoredReason += 'Not an image or video '
         }
         // Make sure the DateTimeOriginal (or CreateDate or MediaCreateDate as fallback options) have the rawValue attribute
         if (file.DateTimeOriginal) if (!file.DateTimeOriginal.rawValue) delete file.DateTimeOriginal
         if (file.CreateDate) if (!file.CreateDate.rawValue) delete file.CreateDate
         if (file.MediaCreateDate) if (!file.MediaCreateDate.rawValue) delete file.MediaCreateDate
-        if (!file.DateTimeOriginal && !file.CreateDate && !file.MediaCreateDate) {
-            log(`${file.FileName} has no DateTimeOriginal or CreateDate or MediaCreateDate and will be ignored.`, collection)
-            log(file, collection, false)
-            return false
-        }
-        return (file.MIMEType.startsWith('image/') || file.MIMEType.startsWith('video/')) && (file.DateTimeOriginal || file.CreateDate || file.MediaCreateDate) // Must be an image/video and have the DateTimeOriginal or CreateDate or MediaCreateDate tags
-    })
-    // For files that have no DateTimeOriginal (but have CreateDate or MediaCreateDate), CreateDate or MediaCreateDate is saved as DateTimeOriginal
-    filesToAdd = filesToAdd.map(file => {
+        // Ignore if no usable Date (if there is one, copy it to DateTimeOriginal (if needed) and set DateUsed)
         if (!file.DateTimeOriginal) {
             if (file.CreateDate) {
                 file.DateTimeOriginal = file.CreateDate
                 file.DateUsed = 'CreateDate'
             }
-            else {
+            else if (file.MediaCreateDate) {
                 file.DateTimeOriginal = file.MediaCreateDate
                 file.DateUsed = 'MediaCreateDate'
+            } else {
+                file.ignored = true
+                file.ignoredReason += 'No DateTimeOriginal or CreateDate or MediaCreateDate '
             }
         } else {
             file.DateUsed = 'DateTimeOriginal'
         }
         return file
     })
-    if (originalFilesLength > filesToAdd.length) log(`${filesToAdd.length == 0 ? 'No new files added. ' : ''}${originalFilesLength - filesToAdd.length} invalid files were ignored.`, collection)
     // Generate thumbnails
-    if (filesToAdd.length > 0) {
-        log(`Generating thumbnails for ${filesToAdd.length} files...`, collection)
-        for (let i = 0; i < filesToAdd.length; i++) {
-            try {
-                filesToAdd[i].thumbnail = await functions.getBase64Thumbnail(filesToAdd[i].SourceFile, filesToAdd[i].FileName, 200, 200, filesToAdd[i].MIMEType.startsWith('video'))
-            } catch (err) {
-                filesToAdd[i].thumbnail = variables.constants.bas64ErrorThumbnail
-                log(`Error generating thumbnail for ${filesToAdd[i].FileName}.`, collection)
-                log(filesToAdd[i], collection, false)
-                log(err, collection)
-            }
+    for (let i = 0; i < finalFiles.length; i++) {
+        try {
+            finalFiles[i].thumbnail = await functions.getBase64Thumbnail(finalFiles[i].SourceFile, finalFiles[i].FileName, 200, 200, finalFiles[i].MIMEType.startsWith('video'))
+            finalFiles[i].validThumbnail = true
+        } catch (err) {
+            finalFiles[i].thumbnail = variables.constants.bas64ErrorThumbnail
+            finalFiles[i].validThumbnail = false
         }
     }
     // Filter out duplicate file ids...
-    process.send('filtering-duplicates')
-    log(`Filtering out duplicate files...`, collection)
-    let ids = Array.from(new Set(filesToAdd.map(file => file._id)))
-    filesToAdd = ids.map(id => {
-        let items = filesToAdd.filter(file => file._id == id)
+    let ids = Array.from(new Set(finalFiles.map(file => file._id)))
+    finalFiles = ids.map(id => {
+        let items = finalFiles.filter(file => file._id == id)
         if (items.length > 0) return items[0]
         else return null
     }).filter(file => !!file)
-    // Add and remove based on the results of above
+
+    return finalFiles
+}
+
+// Runs the initial scan
+const initialScan = async (collection, dir) => {
+    log(`Hashing files in ${dir}...`, collection)
+    let files = await calculateHashes(dir, fs.readdirSync(dir).filter(file => !fs.statSync(`${dir}/${file}`).isDirectory()))
+    log(`Found and hashed ${files.length} files.`, collection)
+    let idsInDB = await functions.getIdsFromMongo(variables.constants.url, variables.constants.db, collection)
+    let filesToAddHashes = files.filter(file => idsInDB.indexOf(file.hash) < 0)
+    let idsToRemove = idsInDB.filter(idInDB => !(files.find(file => file.hash == idInDB)))
+    log(`${filesToAddHashes.length > 0 ? `Preparing ${filesToAddHashes.length} files...` : 'No new files to add.'}`, collection)
+    let filesToAdd = await prepareFiles(dir, filesToAddHashes)
     if (filesToAdd.length > 0) {
-        log(`${filesToAdd.length} files to add...`, collection)
         await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.db, collection, filesToAdd)
         log(`Added ${filesToAdd.length} files.`, collection)
     }
-
     if (idsToRemove.length > 0) {
-        log(`${idsToRemove.length} files to remove...`, collection)
         await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.db, collection, '_id', idsToRemove)
         log(`Removed ${idsToRemove.length} files.`, collection)
     }
-    process.send('ready')
 }
 
-// Runs scans on a loop forever (until the process is killed or an error occurs)
-const scanSyncLoop = async () => {
-    // Ensure both arguments were given
-    const collection = process.argv[2]
-    const dir = process.argv[3]
-    if (!collection) process.exit(-1)
-    if (!dir) process.exit(-2)
-    log(`Scanner started on PID ${process.pid}`, collection)
-    // Run forever
-    while (true) {
-        try {
-            await scanSync(collection, dir)
-        } catch (err) {
-            log(err, collection)
-            process.exit(-8)
+// Handle adding/removing files from the DB on live fs changes
+const handleChokidarEvent = async (event, path, dir, collection) => {
+    if (event == 'add' || event == 'change') {
+        if (fs.existsSync(path)) {
+            if (!fs.statSync(path).isDirectory()) {
+                let filesToAdd = await prepareFiles(dir, await calculateHashes(dir, [path.split('/').pop()]))
+                if (await functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, collection, filesToAdd[0]._id)) {
+                    await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.db, collection, '_id', [filesToAdd[0]._id])
+                }
+                await functions.insertArrayIntoMongo(variables.constants.url, variables.constants.db, collection, filesToAdd)
+                log(`Added a file - ${filesToAdd[0].FileName}.`, collection)
+            }
         }
-        log(`Will scan again in ${variables.config.scanInterval} seconds...`, collection, false)
-        await functions.sleep(variables.config.scanInterval) // Pause between scans
+    }
+    if (event == 'unlink') {
+        await functions.removeByTagArrayFromMongo(variables.constants.url, variables.constants.db, collection, 'SourceFile', [path.split('/').pop()])
+        log(`Removed a file - ${path.split('/').pop()}.`, collection)
     }
 }
 
-process.send('started') // Set status to started
+// Actual run
+const runScanSync = async () => {
+    process.send('started') // Set status to started
+    // Ensure both arguments were given
+    const collection = process.argv[2]
+    const dir = process.argv[3]
+    if (!collection) throw 'No collection argument.'
+    if (!dir) throw 'No dir argument.'
+    log(`Scanner started on PID ${process.pid}.`, collection)
+    // Initial scan
+    process.send('scanning')
+    await initialScan(collection, dir)
+    log(`Initial scan ended.`, collection)
+    // Watch for changes
+    chokidar.watch(dir, { ignoreInitial: true, ignored: `${dir}/*/*` }).on('all', (event, path) => {
+        handleChokidarEvent(event, path, dir, collection).catch(err => {
+            log(err, collection)
+            process.exit(-2)
+        })
+    })
+    log(`Continuing to watch for changes...`, collection)
+    process.send('ready')
+}
 
-// Start scanning
-scanSyncLoop()
+runScanSync().catch(err => {
+    console.log(err)
+    process.exit(-1)
+})
