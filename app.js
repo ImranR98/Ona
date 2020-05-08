@@ -112,7 +112,6 @@ const stopScanner = async (collection) => {
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.processObj.kill()
 	scanners = scanners.filter(scanner => scanner.collection != collection)
-	functions.log(`Scanner for ${collection} was stopped and deleted.`)
 }
 
 // ROUTES START HERE
@@ -277,7 +276,7 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 	}
 })
 
-// Get the all file metadata and thumbnails for specific items in a collection if it exists
+// Get all file metadata and thumbnails for specific items in a collection if it exists
 app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
 		functions.log('Invalid collection.')
@@ -314,6 +313,31 @@ app.get('/dirs', checkIfAuthenticated, (req, res) => {
 	res.send(scanners.map(scanner => { return { collection: scanner.collection, dir: scanner.dir, status: scanner.status } }))
 })
 
+// Get all invalid files in all collections for which there is a running scanner
+app.get('/invalid', checkIfAuthenticated, (req, res) => {
+	let promises = []
+	functions.getCollections(variables.constants.url, variables.constants.db).then(collections => {
+		collections.forEach(collection => {
+			promises.push(
+				functions.getDataFromMongo(variables.constants.url, variables.constants.db, collection.name, null, {
+					$or: [{ 'ignored': true }, { 'validThumbnail': false }]
+				})
+			)
+		})
+		Promise.all(promises).then(results => {
+			let finalResults = []
+			results.forEach(result => finalResults = finalResults.concat(result))
+			res.send(finalResults)
+		}).catch(err => {
+			functions.log(err)
+			res.status(500).send(err)
+		})
+	}).catch(err => {
+		functions.log(err)
+		res.status(500).send(err)
+	})
+})
+
 //All other routes are handled by the Angular App which is served here
 app.get('*', (req, res) => {
 	res.sendFile(__dirname + '/client/dist/client/index.html')
@@ -336,8 +360,6 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 TODO:
 	ASAP:
 		Client:
-			On the config page, have a section to show all files that are ignored and the reason for ignoring. May need to create a route for that on the server.
-			As above, for files missing thumbnails.
 			On the gallery page, add manual forward/back buttons instead of just the slider.
 			On the gallery page, hide items from the previous page while loading items for the new page - current way seems unresponsive.
 			On the individual item view, provide more detailed item data.

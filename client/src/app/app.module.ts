@@ -26,6 +26,8 @@ import { SingleItemComponent } from './single-item/single-item.component'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { MatSliderModule } from '@angular/material/slider'
 import { MatDialogModule } from '@angular/material/dialog'
+import { MatExpansionModule } from '@angular/material/expansion'
+
 
 @NgModule({
   declarations: [
@@ -56,7 +58,8 @@ import { MatDialogModule } from '@angular/material/dialog'
     InfiniteScrollModule,
     MatSliderModule,
     FormsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatExpansionModule
   ],
   providers: [
     {

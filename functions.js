@@ -63,12 +63,13 @@ module.exports.getItemsByIdFromMongo = async (url, db, collection, ids) => {
     return result
 }
 // Get an array of all objects in a MongoDB database collection, returning only specified tags (if specified, else all tags returned)
-module.exports.getDataFromMongo = async (url, db, collection, tags) => {
+module.exports.getDataFromMongo = async (url, db, collection, tags = null, findOptions = null) => {
     let projection = {}
     if (tags) tags.forEach(tag => projection[tag] = 1)
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
     let result = null
-    if (projection != {}) result = (await conn.db(db).collection(collection).find({}, { projection: projection }).toArray())
+    let options = findOptions ? findOptions : {}
+    if (projection != {}) result = (await conn.db(db).collection(collection).find(options, { projection: projection }).toArray())
     else result = (await conn.db(db).collection(collection).find({}).toArray())
     await conn.close()
     return result
@@ -108,10 +109,17 @@ module.exports.dropDB = async (url, db) => {
     await conn.close()
     return result
 }
-// Insert check if a MongoDB database collection exists
+// Check if a MongoDB database collection exists
 module.exports.ifCollectionExists = async (url, db, collection) => {
     let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
     let result = !!((await (await conn.db(db).listCollections()).toArray()).find(coll => coll.name == collection))
+    await conn.close()
+    return result
+}
+// Get all collections in a MongoDB database
+module.exports.getCollections = async (url, db) => {
+    let conn = await new mongodb.MongoClient(url, { useUnifiedTopology: true }).connect()
+    let result = await (await conn.db(db).listCollections()).toArray()
     await conn.close()
     return result
 }

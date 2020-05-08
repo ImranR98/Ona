@@ -36,9 +36,6 @@ export class GalleryComponent implements OnInit, OnDestroy {
   listSource = new BehaviorSubject([])
   list = this.listSource.asObservable()
 
-  ignoredListSource = new BehaviorSubject([])
-  ignoredList = this.ignoredListSource.asObservable()
-
   grabFromIndexSource = new BehaviorSubject(0)
   grabFromIndex = this.grabFromIndexSource.asObservable()
 
@@ -67,7 +64,6 @@ export class GalleryComponent implements OnInit, OnDestroy {
         this.apiService.list(this.collection).then(data => {
           this.loading = false
           this.listSource.next(this.sortList(this.sortForm.controls['sort'].value, data.filter(item => !item.ignored)))
-          this.ignoredListSource.next(data.filter(item => item.ignored))
         }).catch(err => {
           alert(this.errorService.stringifyError(err))
           this.router.navigate(['/choice'])

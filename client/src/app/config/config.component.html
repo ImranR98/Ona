@@ -2,7 +2,8 @@
     <mat-card fxLayout="column">
         <mat-card-title>Change your password</mat-card-title>
         <mat-card-subtitle>Must be over 15 characters - the longer, the better.</mat-card-subtitle>
-        <form [formGroup]="passwordForm" (ngSubmit)="submit()" fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="1em">
+        <form [formGroup]="passwordForm" (ngSubmit)="submit()" fxLayout="row wrap" fxLayoutAlign="start center"
+            fxLayoutGap="1em">
             <mat-form-field>
                 <input matInput formControlName="password" placeholder="Password" type="password" required>
             </mat-form-field>
@@ -11,7 +12,37 @@
     </mat-card>
     <mat-card fxLayout="column">
         <mat-card-title>Reset Application</mat-card-title>
-        <mat-card-subtitle>This is permanent - all app data will be deleted but your files will remain. The server will shut down and will need to be restarted manually.</mat-card-subtitle>
+        <mat-card-subtitle>This is permanent - all app data will be deleted but your files will remain. The server will
+            shut down and will need to be restarted manually.</mat-card-subtitle>
         <button mat-raised-button color="warn" (click)="reset()">RESET</button>
     </mat-card>
+    <mat-expansion-panel [disabled]="ignoredFiles.length == 0">
+        <mat-expansion-panel-header>
+            <mat-panel-title>Ignored Files<span *ngIf="ignoredFiles.length > 0">&nbsp;({{ignoredFiles.length}})</span>
+            </mat-panel-title>
+            <mat-panel-description *ngIf="ignoredFiles.length > 0">
+                Expand to view
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div fxLayout="column" fxLayoutGap="1em">
+            <div *ngFor="let ignoredFile of ignoredFiles" fxLayout="column">
+                <span style="word-break: break-all;">{{ignoredFile.SourceFile}}</span>
+                <small>{{ignoredFile.ignoredReason}}</small>
+            </div>
+        </div>
+    </mat-expansion-panel>
+    <mat-expansion-panel [disabled]="invalidThumbnailFiles.length == 0">
+        <mat-expansion-panel-header>
+            <mat-panel-title>Files with Invalid Thumbnails<span
+                    *ngIf="invalidThumbnailFiles.length > 0">&nbsp;({{invalidThumbnailFiles.length}})</span>
+            </mat-panel-title>
+            <mat-panel-description *ngIf="invalidThumbnailFiles.length > 0">
+                Expand to view
+            </mat-panel-description>
+        </mat-expansion-panel-header>
+        <div fxLayout="column" fxLayoutGap="1em">
+            <span *ngFor="let invalidThumbnailFile of invalidThumbnailFiles"
+                style="word-break: break-all;">{{invalidThumbnailFile.SourceFile}}</span>
+        </div>
+    </mat-expansion-panel>
 </div>

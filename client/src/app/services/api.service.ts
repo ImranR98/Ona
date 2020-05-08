@@ -44,4 +44,8 @@ export class ApiService {
   async dirs(): Promise<any> {
     return this.http.get(environment.apiUrl + `/dirs`, this.httpOptions).toPromise()
   }
+
+  async invalid(): Promise<any> {
+    return this.http.get(environment.apiUrl + `/invalid`, this.httpOptions).toPromise()
+  }
 }

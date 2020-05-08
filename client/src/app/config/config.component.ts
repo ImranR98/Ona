@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { ErrorService } from '../services/error.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-config',
@@ -10,9 +11,21 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 })
 export class ConfigComponent implements OnInit {
 
-  constructor(private authService: AuthService, private errorService: ErrorService) { }
+  constructor(private authService: AuthService, private errorService: ErrorService, private apiService: ApiService) { }
+
+  ignoredFiles = []
+  invalidThumbnailFiles = []
 
   ngOnInit(): void {
+    this.apiService.invalid().then(results => {
+      this.ignoredFiles = results.filter(invalidFile => invalidFile.ignored)
+      this.invalidThumbnailFiles = results.filter(invalidFile => !invalidFile.ignored)
+      console.log(this.ignoredFiles)
+    }).catch(err => {
+      this.ignoredFiles = []
+      this.invalidThumbnailFiles = []
+      alert(this.errorService.stringifyError(err))
+    })
   }
 
   passwordForm = new FormGroup({
