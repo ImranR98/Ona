@@ -357,5 +357,11 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 })
 
 /*
-TODO: Overhaul UI - currently looks ugly. Try something other than material design library (IBM Carbon?).
+TODO:
+	ASAP:
+		Show errors in snackbars instead of using alert().
+		When the server drops the connection, say so instead of 'unknown error'.
+		When the app is reset, find a better way to handle it than just redirecting to about:blank.
+	Later:
+		Overhaul UI - currently looks ugly. Try something other than material design library (IBM Carbon?).
 */
