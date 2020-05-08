@@ -56,46 +56,12 @@ checkIfAuthenticated = expressJwt({
 // An array of all scanSync.js processes
 let scanners = []
 
-// Check if the log directory exists and warn if it couldn't be created
-let logDirExists = false
-if (process.env.LOGDIR) {
-	if (fs.existsSync(process.env.LOGDIR)) {
-		if (fs.statSync(process.env.LOGDIR).isDirectory()) {
-			logDirExists = true
-		}
-	}
-	if (!logDirExists) {
-		try {
-			fs.mkdirSync(process.env.LOGDIR)
-		} catch (err) {
-			console.log('WARNING: Log directory could not be created, so logs will not be saved.')
-		}
-	}
-}
-
-// Write to log file if possible, optionally, write to console
-const log = (object, consoleToo = true) => {
-	try {
-		if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
-		object = `${new Date().toString()}: ${object}`
-		if (consoleToo) console.log(object)
-		const logFilePath = `${process.env.LOGDIR}/app.txt`
-		try {
-			if (logDirExists) fs.appendFileSync(logFilePath, object + '\n')
-		} catch (err) {
-			console.log(err)
-		}
-	} catch (err) {
-		console.log(err)
-	}
-}
-
 // Kill all scanners when this process exits
 process.on('exit', () => {
 	scanners.forEach(scanner => {
 		if (!scanner.killed) scanner.processObj.kill()
 	})
-	log(`Exiting process.`)
+	functions.log(`Exiting process.`)
 })
 
 // Start a scanner
@@ -112,7 +78,7 @@ const startScanner = async (collection, dir, newScanner = false) => {
 			collection,
 			dir,
 			processObj: node('./scanSync.js', [collection, dir]).on('exit', () => {
-				log(`The scanner for ${collection} has stopped.`)
+				functions.log(`The scanner for ${collection} has stopped.`)
 				setScannerStatus(collection, 'stopped')
 			}).on('message', (message) => {
 				setScannerStatus(collection, message)
@@ -146,17 +112,17 @@ const stopScanner = async (collection) => {
 	let target = scanners.find(scanner => scanner.collection == collection)
 	if (target) target.processObj.kill()
 	scanners = scanners.filter(scanner => scanner.collection != collection)
-	log(`Scanner for ${collection} was stopped and deleted.`)
+	functions.log(`Scanner for ${collection} was stopped and deleted.`)
 }
 
 // ROUTES START HERE
 
 // Authenticate
 app.post('/auth', (req, res) => {
-	log('Attempting auth...')
+	functions.log('Attempting auth...')
 	auth.authenticate(req.body.password).then(isValid => {
 		if (isValid) {
-			log('Logged in.')
+			functions.log('Logged in.')
 			res.json({
 				jwtToken: jwt.sign({}, process.env.RSA_PRIVATE_KEY.replaceAll('\\n', '\n'), {
 					algorithm: 'RS256',
@@ -164,23 +130,23 @@ app.post('/auth', (req, res) => {
 				})
 			})
 		} else {
-			log('Login failed.')
+			functions.log('Login failed.')
 			res.status(401).send()
 		}
 	}).catch((err) => {
-		log(err)
+		functions.log(err)
 		res.status(500).send(err)
 	})
 })
 
 // Set up password (for first time use)
 app.post('/setup', (req, res) => {
-	log('Attempting to set first time password...')
+	functions.log('Attempting to set first time password...')
 	auth.updateAuth(req.body.password).then(result => {
-		log('First time password set.')
+		functions.log('First time password set.')
 		res.send()
 	}).catch((err) => {
-		log(err)
+		functions.log(err)
 		res.status(500).send(err)
 	})
 })
@@ -190,53 +156,53 @@ app.get('/isFirstTime', (req, res) => {
 	auth.getPassword().then(password => {
 		res.send(!password)
 	}).catch((err) => {
-		log(err)
+		functions.log(err)
 		res.status(500).send(err)
 	})
 })
 
 // Change password
 app.post('/newAuth', checkIfAuthenticated, (req, res) => {
-	log('Attempting to change password...')
+	functions.log('Attempting to change password...')
 	auth.updateAuth(req.body.password, false).then(result => {
-		log('Password changed.')
+		functions.log('Password changed.')
 		res.send()
 	}).catch((err) => {
-		log(err)
+		functions.log(err)
 		res.status(500).send(err)
 	})
 })
 
 // Delete everything in the database and exit
 app.post('/reset', checkIfAuthenticated, (req, res) => {
-	log('Attempting to reset app...')
+	functions.log('Attempting to reset app...')
 	let promises = []
 	scanners.forEach(scanner => promises.push(stopScanner(scanner.collection)))
 	Promise.all(promises).then(result3 => {
 		functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
 			functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
-				log('App was reset and will now exit.')
+				functions.log('App was reset and will now exit.')
 				process.exit(0)
 			}).catch((err) => {
-				log(err)
+				functions.log(err)
 				res.status(500).send(err)
 			})
 		}).catch((err) => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	}).catch(err => {
-		log('Could not stop all scanners - please stop them manually.')
+		functions.log('Could not stop all scanners - please stop them manually.')
 		functions.dropDB(variables.constants.url, variables.constants.db).then(result => {
 			functions.dropDB(variables.constants.url, variables.constants.configdb).then(result2 => {
-				log('App was reset and will now exit.')
+				functions.log('App was reset and will now exit.')
 				process.exit(0)
 			}).catch((err) => {
-				log(err)
+				functions.log(err)
 				res.status(500).send(err)
 			})
 		}).catch((err) => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	})
@@ -244,37 +210,37 @@ app.post('/reset', checkIfAuthenticated, (req, res) => {
 
 // Add a new scanner
 app.post('/add', checkIfAuthenticated, (req, res) => {
-	log('Attempting to add a scanner...')
+	functions.log('Attempting to add a scanner...')
 	if (req.body.collection && req.body.dir) {
 		if (req.body.dir.startsWith('/')) {
 			startScanner(req.body.collection, req.body.dir, true).then(() => {
-				log('Scanner added.')
+				functions.log('Scanner added.')
 				res.send()
 			}).catch((err) => {
-				log(err)
+				functions.log(err)
 				res.status(500).send(err)
 			})
 		} else {
-			log('Directory path must be absolute.')
+			functions.log('Directory path must be absolute.')
 		}
 	} else {
-		log('Invaid add scanner request - collection and dir properties must exist in POST request body.')
+		functions.log('Invaid add scanner request - collection and dir properties must exist in POST request body.')
 		res.status(400).send()
 	}
 })
 
 // Remove a new scanner by its collection name
 app.post('/remove', checkIfAuthenticated, (req, res) => {
-	log('Attempting to remove a scanner...')
+	functions.log('Attempting to remove a scanner...')
 	if (req.body.collection) {
 		stopScanner(req.body.collection).then(() => {
 			res.send()
 		}).catch((err) => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	} else {
-		log('Invaid remove scanner request - collection property must exist in POST request body.')
+		functions.log('Invaid remove scanner request - collection property must exist in POST request body.')
 		res.status(400).send()
 	}
 })
@@ -282,13 +248,13 @@ app.post('/remove', checkIfAuthenticated, (req, res) => {
 // Get the file name and date for all items in a collection if it is being tracked
 app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		log('Invalid collection.')
+		functions.log('Invalid collection.')
 		res.status(400).send()
 	} else {
 		functions.getDataFromMongo(variables.constants.url, variables.constants.db, req.params.collection, ['_id', 'DateTimeOriginal.rawValue', 'FileName']).then(result => {
 			res.send(result)
 		}).catch(err => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	}
@@ -297,7 +263,7 @@ app.get('/list/:collection', checkIfAuthenticated, (req, res) => {
 // Get the all file metadata and thumbnail for a specific item in a collection if it exists
 app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		log('Invalid collection.')
+		functions.log('Invalid collection.')
 		res.status(400).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
@@ -305,7 +271,7 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 				res.send(result)
 			} else res.send(result)
 		}).catch(err => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	}
@@ -314,13 +280,13 @@ app.get('/single/:collection/:item', checkIfAuthenticated, (req, res) => {
 // Get the all file metadata and thumbnails for specific items in a collection if it exists
 app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		log('Invalid collection.')
+		functions.log('Invalid collection.')
 		res.status(400).send()
 	} else {
 		functions.getItemsByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.body.ids).then(results => {
 			res.send(results)
 		}).catch(err => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	}
@@ -329,7 +295,7 @@ app.post('/many/:collection', checkIfAuthenticated, (req, res) => {
 // Get the actual file for a specific item in a collection if it exists
 app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 	if (!scanners.find(scanner => scanner.collection == req.params.collection)) {
-		log('Invalid collection.')
+		functions.log('Invalid collection.')
 		res.status(400).send()
 	} else {
 		functions.getSingleItemByIdFromMongo(variables.constants.url, variables.constants.db, req.params.collection, req.params.item).then(result => {
@@ -337,7 +303,7 @@ app.get('/content/:collection/:item', checkIfAuthenticated, (req, res) => {
 				res.sendFile(result.SourceFile)
 			} else res.send(result)
 		}).catch(err => {
-			log(err)
+			functions.log(err)
 			res.status(500).send(err)
 		})
 	}
@@ -359,20 +325,16 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 	results.forEach(({ _id, dir }) => promises.push(startScanner(_id, dir)))
 	Promise.all(promises).then(() => {
 		app.listen(port, () => {
-			log(`Started on port ${port}.`)
+			functions.log(`Started on port ${port}.`)
 		})
 	}).catch(err => {
-		log(err)
+		functions.log(err)
 	})
 })
 
 /*
 TODO:
 	ASAP:
-		Server:
-			Go through all code and recheck to make sure everything is clean/efficient/optimized. Squish as many bugs as possible.
-			Remove current logging solution - it's messed up. Just console.log everything for now, user can always pipe to a file.
-		
 		Client:
 			On the config page, have a section to show all files that are ignored and the reason for ignoring. May need to create a route for that on the server.
 			As above, for files missing thumbnails.

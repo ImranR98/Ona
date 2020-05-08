@@ -171,3 +171,14 @@ module.exports.calculateFileArrayMD5 = async (dir, files) => {
 
     return finalArray
 }
+
+// Log anything to the console, along with the date/time and any identifier if provided
+module.exports.log = (object, id = null) => {
+    try {
+        if (typeof object != 'string') object = '\n' + JSON.stringify(object, null, '\t')
+        object = `${new Date().toString()}: ${id ? `${id}: ` : ''}${object}`
+        console.log(object)
+    } catch (err) {
+        console.log(err)
+    }
+}
