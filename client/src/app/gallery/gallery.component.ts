@@ -77,16 +77,17 @@ export class GalleryComponent implements OnInit, OnDestroy {
   }
 
   nextPage() {
-    this.toPage(++this.pageNo)
+    this.toPage(this.pageNo + 1)
   }
 
   prevPage() {
-    this.toPage(--this.pageNo)
+    this.toPage(this.pageNo - 1)
   }
 
   toPage(num: number) {
     if (((num - 1) * this.loadAtATime <= this.listSource.value.length - 1) && ((num - 1) * this.loadAtATime >= 0)) {
       this.grabFromIndexSource.next((num - 1) * this.loadAtATime)
+      this.pageNo = num
     }
   }
 
@@ -120,17 +121,19 @@ export class GalleryComponent implements OnInit, OnDestroy {
     }
   }
 
-  openItem(id, FileName) {
+  openItem(id) {
     if (!this.loading) {
-      this.dialog.open(SingleItemComponent, {
-        data: {
-          collection: this.collection,
-          _id: id,
-          FileName: FileName
-        },
-        maxHeight: '100vh',
-        maxWidth: '100%'
-      });
+      let item = this.thumbnails.find(thumb => thumb._id == id)
+      if (item) {
+        this.dialog.open(SingleItemComponent, {
+          data: {
+            item: item,
+            collection: this.collection
+          },
+          maxHeight: '100vh',
+          maxWidth: '100vw'
+        })
+      }
     }
   }
 

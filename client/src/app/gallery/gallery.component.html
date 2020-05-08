@@ -1,5 +1,6 @@
 <div fxLayout="column" fxLayoutGap="1em" style="height: 100%;">
-    <mat-card fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-between center" fxLayoutAlign.lt-sm="space-between start">
+    <mat-card fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-between center"
+        fxLayoutAlign.lt-sm="space-between start">
         <div>
             <mat-card-title>{{collection}}</mat-card-title>
             <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
@@ -15,14 +16,14 @@
             </mat-form-field>
         </form>
     </mat-card>
-    <div fxLayout="column" fxLayoutGap="1em" *ngIf="thumbnails.length > 0">
+    <div fxLayout="column" fxLayoutGap="1em" *ngIf="!loading && thumbnails.length > 0">
         <mat-grid-list role="list" cols="15" rowHeight="1:1" fxHide fxShow.gt-lg
             style="overflow: auto; min-height:max-content;">
             <mat-grid-tile role="listitem" *ngFor="let thumbnail of thumbnails" fxLayout="column">
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -39,7 +40,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -56,7 +57,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -73,7 +74,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -90,7 +91,7 @@
                 <div *ngIf="thumbnail" fxFill
                     [style.background-image]="'url(data:image/jpeg;base64,' + thumbnail.thumbnail + ')'"
                     [style.background-position]="'center'" [style.background-size]="'cover'" fxLayout="column"
-                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id, thumbnail.FileName)">
+                    fxLayoutAlign="space-between center" (click)="openItem(thumbnail._id)">
                     <div></div>
                     <div *ngIf="thumbnail.MIMEType.startsWith('video')" style="color: white; font-weight: bold;">
                         Video
@@ -108,12 +109,19 @@
 </div>
 
 <div style="height: 7em;"></div>
+<div style="height: 2em;" fxHide fxShow.lt-sm></div>
 
-<div style="position: fixed; bottom: 1em; left: 1em;" fxLayout="column">
-    <mat-card fxFill fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="1em" *ngIf="thumbnails.length > 0">
-        <span>Page {{pageNo}} of {{maxPages}}:</span>
+<div style="position: fixed; bottom: 1em; left: 1em; right: 1em;" fxLayout="column" fxLayoutAlign="center end"
+    fxLayoutAlign.lt-sm="center center">
+    <mat-card fxLayout=" row" fxLayout.lt-sm="column" fxLayoutAlign="center center" fxLayoutGap="1em"
+    *ngIf="thumbnails.length > 0">
+    <span>Page {{pageNo}} of {{maxPages}}</span>
+    <div fxLayout="row wrap" fxLayoutGap="1em">
+        <button mat-button color="primary" [disabled]="pageNo == 1" (click)="prevPage()">&lt;</button>
         <mat-slider name="pageSlider" color="primary" [disabled]="loading" [max]="maxPages" min="1" [(ngModel)]="pageNo"
             thumbLabel="true" (change)="sliderChanged($event)">
         </mat-slider>
+        <button mat-button color="primary" [disabled]="pageNo == maxPages" (click)="nextPage()">&gt;</button>
+    </div>
     </mat-card>
 </div>

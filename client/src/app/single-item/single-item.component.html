@@ -1,18 +1,20 @@
-<div fxLayout="column" fxLayoutGap="1em">
-    <div fxLayout="row wrap" fxLayoutGap="1em" fxLayoutAlign="space-between start">
-        <div>
-            <mat-card-title style="word-wrap: break-word; word-break: break-all;">{{data.collection}} - {{data.FileName}}
-            </mat-card-title>
-            <mat-card-subtitle *ngIf="itemSource.value">{{dateString}}</mat-card-subtitle>
-        </div>
-        <button mat-raised-button color="warn" (click)="close()">Close</button>
+<mat-dialog-title fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="space-between start">
+    <div>
+        <mat-card-title *ngIf="item" style="word-wrap: break-word; word-break: break-all;">{{data.collection}} -
+            {{item.FileName}}
+        </mat-card-title>
+        <mat-card-title *ngIf="!item" style="word-wrap: break-word; word-break: break-all;">No Item
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="dateString">{{dateString}}</mat-card-subtitle>
     </div>
-    <div *ngIf="itemSource.value">
-        <img *ngIf="itemSource.value.MIMEType.startsWith('image')" [src]="imageSrc"
-            style="max-height: 100%; max-width: 100%;">
-        <video [src]="imageSrc" *ngIf="itemSource.value.MIMEType.startsWith('video')"
-            style="width: 100% !important; height: auto !important;" controls>
-            Your browser does not support the video tag.
-        </video>
-    </div>
-</div>
+    <button mat-raised-button color="warn" (click)="close()">Close</button>
+</mat-dialog-title>
+<mat-dialog-content *ngIf="item" fxLayout="row" fxLayoutAlign="center">
+    <img *ngIf="item.MIMEType.startsWith('image') && !loading" [src]="imageSrc"
+        style="max-height: 100%; max-width: 100%; object-fit: contain;">
+    <video [src]="imageSrc" *ngIf="item.MIMEType.startsWith('video') && !loading"
+        style="width: 100% !important; height: auto !important;" controls>
+        Your browser does not support the video tag.
+    </video>
+    <span *ngIf="loading">Loading...</span>
+</mat-dialog-content>

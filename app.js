@@ -357,14 +357,5 @@ functions.getDataFromMongo(variables.constants.url, variables.constants.configdb
 })
 
 /*
-TODO:
-	ASAP:
-		Client:
-			On the gallery page, add manual forward/back buttons instead of just the slider.
-			On the gallery page, hide items from the previous page while loading items for the new page - current way seems unresponsive.
-			On the individual item view, provide more detailed item data.
-			On the individual item view, TRY to make images fit properly on all screen sizes :( .
-
-	Later:
-		Overhaul UI - currently looks ugly. Try something other than material design library (IBM Carbon?).
+TODO: Overhaul UI - currently looks ugly. Try something other than material design library (IBM Carbon?).
 */

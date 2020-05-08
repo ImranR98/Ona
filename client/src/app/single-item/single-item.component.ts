@@ -11,51 +11,42 @@ import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dial
   templateUrl: './single-item.component.html',
   styleUrls: ['./single-item.component.scss']
 })
-export class SingleItemComponent implements OnInit, OnDestroy {
+export class SingleItemComponent implements OnInit {
 
-  constructor(private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer, private dialogRef: MatDialogRef<SingleItemComponent>, @Inject(MAT_DIALOG_DATA) public data: { collection: string, _id: string, FileName: string } | null, private dialog: MatDialog) { }
+  constructor(private router: Router, private apiService: ApiService, private errorService: ErrorService, private sanitizer: DomSanitizer, private dialogRef: MatDialogRef<SingleItemComponent>, @Inject(MAT_DIALOG_DATA) public data: { item: any, collection: string } | null, private dialog: MatDialog) { }
 
   subs: Subscription[] = []
   dateString = ''
   imageSrc: any = '//:0'
-
-  itemSource = new BehaviorSubject(null)
-  item = this.itemSource.asObservable()
+  item: any = null
+  loading: boolean = false
 
   ngOnInit(): void {
     if (this.data) {
       if (!this.data.collection) {
         alert('Folder name not provided.')
         this.router.navigate(['/choice'])
-      }
-      if (!this.data._id) {
-        alert('Item name not provided.')
+      } else if (!this.data.item) {
+        alert('Item not provided.')
         this.router.navigate([`/gallery/${this.data.collection}`])
+      } else {
+        this.item = this.data.item
+        let rawDate = this.data.item.DateTimeOriginal.rawValue
+        let date = new Date(rawDate.replace(':', '-').replace(':', '-'))
+        this.dateString = `${date.toDateString()} ${rawDate.split(' ')[1]}`
+        this.loading = true
+        this.apiService.content(this.data.collection, this.data.item._id).then((blob: any) => {
+          this.loading = false
+          this.imageSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob))
+        }).catch(err => {
+          this.loading = false
+          alert(this.errorService.stringifyError(err))
+        })
       }
-      this.apiService.single(this.data.collection, this.data._id).then(data => {
-        this.itemSource.next(data)
-      }).catch(err => {
-        alert(this.errorService.stringifyError(err))
-      })
     } else {
       alert('Data not provided.')
       this.router.navigate([`/choice`])
     }
-
-    this.item.subscribe(item => {
-      if (item) {
-        let rawDate = item.DateTimeOriginal.rawValue
-        let date = new Date(rawDate.replace(':', '-').replace(':', '-'))
-        this.dateString = `${date.toDateString()} ${rawDate.split(' ')[1]}`
-        this.apiService.content(this.data.collection, this.data._id).then((blob: any) => {
-          this.imageSrc = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(blob))
-        })
-      }
-    })
-  }
-
-  ngOnDestroy(): void {
-    this.subs.forEach(sub => sub.unsubscribe())
   }
 
   close() {
