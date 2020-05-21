@@ -4,7 +4,6 @@ import { AuthService } from './services/auth.service'
 import { AuthComponent } from './auth/auth.component'
 import { ChoiceComponent } from './choice/choice.component'
 import { GalleryComponent } from './gallery/gallery.component'
-import { Eror404Component } from './eror404/eror404.component'
 import { ConfigComponent } from './config/config.component'
 import { SingleItemComponent } from './single-item/single-item.component'
 
@@ -12,12 +11,8 @@ import { SingleItemComponent } from './single-item/single-item.component'
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/auth',
+    redirectTo: '/choice',
     pathMatch: 'full'
-  },
-  {
-    path: '404',
-    component: Eror404Component,
   },
   {
     path: 'auth',
@@ -45,7 +40,7 @@ const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/404'
+    redirectTo: '/'
   }
 ]
 

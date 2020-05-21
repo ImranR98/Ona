@@ -1,11 +1,11 @@
-<div fxLayout="column" fxLayoutGap="1em" style="height: 100%;">
-    <mat-card fxLayout="row wrap" fxLayout.lt-sm="column" fxLayoutAlign="space-between center"
-        fxLayoutAlign.lt-sm="space-between start">
-        <div>
-            <mat-card-title>{{collection}}</mat-card-title>
-            <mat-card-subtitle *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
+<div fxLayout="column" style="height: 100%;">
+    <div fxLayout="column" fxLayoutGap="1em" fxLayoutAlign="space-between start"
+        class="stdMarginTop stdMarginHorizontal">
+        <div fxLayout="column" fxLayoutGap="0.3em">
+            <span class="xLargeText">{{collection}}</span>
+            <span *ngIf="listSource.value.length == 0">No Items here. There may be no valid items in the
                 folder, or
-                folder scanning may still be in progress.</mat-card-subtitle>
+                folder scanning may still be in progress.</span>
         </div>
         <form [formGroup]="sortForm" fxLayout="row" *ngIf="thumbnails.length > 0">
             <mat-form-field fxFlex="100%">
@@ -15,7 +15,7 @@
                 </mat-select>
             </mat-form-field>
         </form>
-    </mat-card>
+    </div>
     <div fxLayout="column" fxLayoutGap="1em" *ngIf="!loading && thumbnails.length > 0">
         <mat-grid-list role="list" cols="15" rowHeight="1:1" fxHide fxShow.gt-lg
             style="overflow: auto; min-height:max-content;">
@@ -103,9 +103,10 @@
             </mat-grid-tile>
         </mat-grid-list>
     </div>
-    <mat-card *ngIf="loading || (thumbnails.length == 0 && listSource.value.length > 0)">
-        <mat-card-subtitle>Please wait...</mat-card-subtitle>
-    </mat-card>
+    <div class="bottomFixed">
+        <mat-progress-bar *ngIf="loading || (thumbnails.length == 0 && listSource.value.length > 0)"
+            mode="indeterminate" color="accent"> </mat-progress-bar>
+    </div>
 </div>
 
 <div style="height: 7em;"></div>
@@ -113,15 +114,17 @@
 
 <div style="position: fixed; bottom: 1em; left: 1em; right: 1em;" fxLayout="column" fxLayoutAlign="center end"
     fxLayoutAlign.lt-sm="center center">
-    <mat-card fxLayout=" row" fxLayout.lt-sm="column" fxLayoutAlign="center center" fxLayoutGap="1em"
-    *ngIf="thumbnails.length > 0">
-    <span>Page {{pageNo}} of {{maxPages}}</span>
-    <div fxLayout="row wrap" fxLayoutGap="1em">
-        <button mat-button color="primary" [disabled]="pageNo == 1" (click)="prevPage()">&lt;</button>
-        <mat-slider name="pageSlider" color="primary" [disabled]="loading" [max]="maxPages" min="1" [(ngModel)]="pageNo"
+    <div fxLayout="row wrap" fxLayoutGap="1em" fxLayoutAlign="center center"
+        *ngIf="thumbnails.length > 0 && maxPages > 1">
+        <button mat-mini-fab color="accent" *ngIf="pageNo > 2" (click)="toPage(1)">1</button>
+        <button mat-mini-fab color="accent" [disabled]="pageNo == 1"
+            (click)="prevPage()">{{pageNo > 1 ? pageNo - 1 : pageNo}}</button>
+        <mat-slider name="pageSlider" color="accent" [disabled]="loading" [max]="maxPages" min="1" [(ngModel)]="pageNo"
             thumbLabel="true" (change)="sliderChanged($event)">
         </mat-slider>
-        <button mat-button color="primary" [disabled]="pageNo == maxPages" (click)="nextPage()">&gt;</button>
+        <button mat-mini-fab color="accent" [disabled]="pageNo == maxPages"
+            (click)="nextPage()">{{pageNo < maxPages ? pageNo + 1 : pageNo}}</button>
+        <button mat-mini-fab color="accent" *ngIf="pageNo < maxPages - 1"
+            (click)="toPage(maxPages)">{{maxPages}}</button>
     </div>
-    </mat-card>
 </div>

@@ -1,24 +1,14 @@
-<mat-toolbar fxShow fxHide.lt-sm fxLayout="row" fxLayoutAlign="space-between center">
-    <a routerLink="/">Gallery15</a>
+<mat-toolbar fxLayout="row" fxLayoutAlign="space-between center" color="primary">
+    <a routerLink="/">Ona</a>
     <div fxLayout="row wrap" fxLayoutGap="1em" *ngIf="isLoggedIn">
-        <button mat-raised-button color="primary" routerLink="/choice"
-            routerLinkActive="font-weight-bold">Folders</button>
-        <button mat-raised-button color="primary" routerLink="/config"
-            routerLinkActive="font-weight-bold">Config</button>
-        <button mat-raised-button color="warn" (click)="logOut()">Exit</button>
+        <button mat-icon-button routerLink="/choice" routerLinkActive="active">
+            <mat-icon>dynamic_feed</mat-icon>
+        </button>
+        <button mat-icon-button routerLink="/config" routerLinkActive="active">
+            <mat-icon>settings_applications_outline</mat-icon>
+        </button>
+        <button mat-icon-button (click)="logOut()">
+            <mat-icon>exit_to_app</mat-icon>
+        </button>
     </div>
-</mat-toolbar>
-<mat-toolbar fxHide fxShow.lt-sm fxLayout="column">
-    <mat-toolbar-row>
-        <span>Gallery15</span>
-    </mat-toolbar-row>
-    <mat-toolbar-row *ngIf="isLoggedIn">
-        <div fxLayout="row wrap" fxLayoutGap="1em">
-            <button mat-raised-button color="primary" routerLink="/choice"
-                routerLinkActive="font-weight-bold">Folders</button>
-            <button mat-raised-button color="primary" routerLink="/config"
-                routerLinkActive="font-weight-bold">Config</button>
-            <button mat-raised-button color="warn" (click)="logOut()">Exit</button>
-        </div>
-    </mat-toolbar-row>
 </mat-toolbar>

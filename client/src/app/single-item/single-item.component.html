@@ -1,13 +1,15 @@
 <mat-dialog-title fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="space-between start">
-    <div>
-        <mat-card-title *ngIf="item" style="word-wrap: break-word; word-break: break-all;">{{data.collection}} -
+    <div fxLayout="column" fxLayoutGap="0.3em">
+        <span class=xLargeText *ngIf="item" style="word-wrap: break-word; word-break: break-all;">{{data.collection}} -
             {{item.FileName}}
-        </mat-card-title>
-        <mat-card-title *ngIf="!item" style="word-wrap: break-word; word-break: break-all;">No Item
-        </mat-card-title>
-        <mat-card-subtitle *ngIf="dateString">{{dateString}}</mat-card-subtitle>
+        </span>
+        <span *ngIf="!item" style="word-wrap: break-word; word-break: break-all;">No Item
+        </span>
+        <span *ngIf="dateString">{{dateString}}</span>
     </div>
-    <button mat-raised-button color="warn" (click)="close()">Close</button>
+    <button mat-icon-button color="warn" (click)="close()">
+        <mat-icon>close</mat-icon>
+    </button>
 </mat-dialog-title>
 <mat-dialog-content *ngIf="item" fxLayout="row" fxLayoutAlign="center">
     <img *ngIf="item.MIMEType.startsWith('image') && !loading" [src]="imageSrc"
@@ -16,5 +18,7 @@
         style="width: 100% !important; height: auto !important;" controls>
         Your browser does not support the video tag.
     </video>
-    <span *ngIf="loading">Loading...</span>
+    <div class="bottomFixed" *ngIf="loading">
+        <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+    </div>
 </mat-dialog-content>

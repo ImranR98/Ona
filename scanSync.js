@@ -27,7 +27,7 @@ const calculateHashes = async (dir, files) => {
 }
 
 // Takes an array of objects of the form { file: file name, hash: file MD5 hash } describing files in directory dir
-// Gets exiftool metadata for the files, validates them for Gallery15, sets any ignored flags, filters duplicates, and generates thumbnails
+// Gets exiftool metadata for the files, validates them for Ona, sets any ignored flags, filters duplicates, and generates thumbnails
 // Returns an array of objects ready to add to the database
 // base64ErrorThumbnail is a base64 encoded image to be used if a thumbnail can't be generated
 const prepareFiles = async (dir, files) => {

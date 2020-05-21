@@ -4,43 +4,45 @@
 //Define custom font to use with Material, then include it
 @include mat-core();
 
-//Define custom color palettes for the App's primary, accent and warning colors (numbers indicate default, lighter and darker variants)
-$dark-mode-primary:  mat-palette($mat-indigo);
-$dark-mode-accent: mat-palette($mat-yellow);
-$dark-mode-warn: mat-palette($mat-red);
+$app-primary: mat-palette($mat-pink);
+$app-accent: mat-palette($mat-amber);
+$app-warn: mat-palette($mat-red);
 
-//Define a theme using the above palettes
-$dark-mode-theme: mat-dark-theme($dark-mode-primary, $dark-mode-accent, $dark-mode-warn);
-
-//Define another theme and import it in a class (not default)
-$light-mode-primary:  mat-palette($mat-indigo);
-$light-mode-accent: mat-palette($mat-yellow);
-$light-mode-warn: mat-palette($mat-red);
-$light-mode-theme: mat-light-theme($light-mode-primary, $light-mode-accent, $light-mode-warn);
+$app-light-theme: mat-light-theme($app-primary, $app-accent, $app-warn);
+$app-dark-theme: mat-dark-theme($app-primary, $app-accent, $app-warn);
 
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
-  @include angular-material-theme($dark-mode-theme);
-  .font-weight-bold {
-    font-weight: bold;
-    color: #FFF !important;
+  @include angular-material-theme($app-dark-theme);
+  html, body {
+    background-color: rgb(25, 25, 25);
+    color: #FFF;
   }
-
-  html {
-    background-color: rgb(50, 50, 50);
+  .active {
+    font-weight: bold;
+    color: mat-color($app-accent, lighter) !important
+  }
+  .mat-primary-button { // This is needed for dark mode (mat-pink is too dark otherwise)
+    color: mat-color($app-primary, lighter)
+  }
+  .mat-warn {
+    color: mat-color($app-warn, 'A100') !important
   }
 }
 
 /* Light mode */
 @media (prefers-color-scheme: light) {
-  @include angular-material-theme($light-mode-theme);
-  .font-weight-bold {
-    font-weight: bold;
-    color: #FFF !important;
+  @include angular-material-theme($app-light-theme);
+  html, body {
+    background-color: rgb(255, 255, 255);
+    color: #000
   }
-
-  html {
-    background-color: rgb(200, 200, 200);
+  .active {
+    font-weight: bold;
+    color: mat-color($app-accent, lighter) !important
+  }
+  .mat-primary-button {
+    color: mat-color($app-primary)
   }
 }
 
@@ -55,4 +57,32 @@ a {
 
 mat-toolbar a {
   text-decoration: none;
+}
+
+.stdMargin {
+  margin: 1em;
+}
+
+.stdMarginTop {
+  margin-top: 1em;
+}
+
+.stdMarginHorizontal {
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.xLargeText {
+  font-size: x-large;
+}
+
+.mat-icon-button {
+  overflow: auto !important;
+}
+
+.bottomFixed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }

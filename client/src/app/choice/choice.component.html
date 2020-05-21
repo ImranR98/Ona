@@ -1,22 +1,29 @@
-<div fxLayout="row" fxLayout.lt-sm="column" fxLayoutGap="1em">
-    <mat-card fxLayout="column" fxFlex="100%">
-        <mat-card-title>Folders</mat-card-title>
-        <mat-card-subtitle *ngIf="dirs.length == 0">No folders added yet.</mat-card-subtitle>
-        <div fxLayout="column" fxLayoutGap="1em">
-            <div *ngFor="let dir of dirs" fxLayout="row" fxLayout.lt-sm="column" fxLayoutAlign="space-between center"
-                fxLayoutAlign.lt-sm="default default" fxLayoutGap="1em">
-                <a routerLink="/gallery/{{dir.collection}}" style="word-break: break-all;">{{dir.collection}} -
-                    {{dir.dir}}</a>
-                <div fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="space-between center">
-                    <span>Status: <strong *ngIf="dir.status">{{dir.status.toUpperCase()}}</strong><strong
-                            *ngIf="!dir.status">WAITING</strong></span>
-                    <button mat-raised-button color="warn" (click)="remove(dir.collection)">Remove</button>
+<div fxLayout="row" fxLayout.lt-sm="column" fxLayoutGap="1em" class="stdMargin">
+    <div fxLayout="column" fxFlex="100%" fxLayoutGap="1em">
+        <div fxLayout="column" fxLayoutGap="0.3em">
+            <span class="xLargeText">Folders</span>
+            <span *ngIf="dirs.length == 0">No folders added yet.</span>
+        </div>
+        <div fxLayout="column" fxLayoutGap="0.3em">
+            <div *ngFor="let dir of dirs" fxLayout="column" fxLayoutGap="0.3em">
+                <mat-divider></mat-divider>
+                <div fxLayout="row" fxLayout.lt-sm="column" fxLayoutAlign="space-between center"
+                    fxLayoutAlign.lt-sm="default default" fxLayoutGap="1em">
+                    <a routerLink="/gallery/{{dir.collection}}" style="word-break: break-all;">{{dir.collection}} -
+                        {{dir.dir}}</a>
+                    <div fxLayout="row" fxLayoutGap="1em" fxLayoutAlign="space-between center">
+                        <span>Status: <strong *ngIf="dir.status">{{dir.status.toUpperCase()}}</strong><strong
+                                *ngIf="!dir.status">WAITING</strong></span>
+                        <button mat-icon-button color="warn" (click)="remove(dir.collection)">
+                            <mat-icon>delete_outline</mat-icon>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
-    </mat-card>
-    <mat-card fxLayout="column">
-        <mat-card-title>Add Folder</mat-card-title>
+    </div>
+    <div fxLayout="column" fxLayoutGap="0.3em">
+        <span class="xLargeText">Add Folder</span>
         <form [formGroup]="addForm" (ngSubmit)="add()" fxLayout="row" fxLayout.lt-md="column"
             fxLayoutAlign="start start" fxLayoutGap="1em" fxLayoutGap.lt-md="0">
             <mat-form-field>
@@ -25,7 +32,9 @@
             <mat-form-field>
                 <input matInput formControlName="dir" placeholder="Path" type="text" required>
             </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">Add</button>
+            <button mat-icon-button color="primary-button" type="submit">
+                <mat-icon>add</mat-icon>
+            </button>
         </form>
-    </mat-card>
+    </div>
 </div>

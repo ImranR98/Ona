@@ -1,4 +1,4 @@
-# Gallery15
+# Ona
 Simple, self hosted, single user, web based photo gallery.
 
 Scan specific directories on your server for photos and videos and display them on a web page in a simple paginated interface. 
@@ -37,3 +37,5 @@ Run ```npm start``` to run the application.
 ![Screenshot of Item View](/screenshots/item.png?raw=true "Item View")
 ### Configuration
 ![Screenshot of Configuration page](/screenshots/config.png?raw=true "Configuration")
+### Responsive UI and dark mode
+![Screenshot showing Responsive UI and dark mode](/screenshots/responsiveDark.png?raw=true "Responsive UI and dark mode")

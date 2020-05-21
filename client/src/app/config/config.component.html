@@ -1,26 +1,33 @@
-<div fxLayout="column" fxLayoutGap="1em">
-    <mat-card fxLayout="column">
-        <mat-card-title>Change your password</mat-card-title>
-        <mat-card-subtitle>Must be over 15 characters - the longer, the better.</mat-card-subtitle>
+<div fxLayout="column" fxLayoutGap="1em" class="stdMargin">
+    <div fxLayout="column" fxLayoutGap="1em">
+        <div fxLayout="column" fxLayoutGap="0.3em">
+            <span class="xLargeText">Change your password</span>
+            <span>Must be over 15 characters - the longer, the better.</span>
+        </div>
         <form [formGroup]="passwordForm" (ngSubmit)="submit()" fxLayout="row wrap" fxLayoutAlign="start center"
             fxLayoutGap="1em">
             <mat-form-field>
                 <input matInput formControlName="password" placeholder="Password" type="password" required>
             </mat-form-field>
-            <button mat-raised-button color="primary" type="submit">Change</button>
+            <button mat-button color="primary-button" type="submit">Change</button>
         </form>
-    </mat-card>
-    <mat-card fxLayout="column">
-        <mat-card-title>Reset Application</mat-card-title>
-        <mat-card-subtitle>This is permanent - all app data will be deleted but your files will remain. The server will
-            shut down and will need to be restarted manually.</mat-card-subtitle>
-        <button mat-raised-button color="warn" (click)="reset()">RESET</button>
-    </mat-card>
-    <mat-expansion-panel [disabled]="ignoredFiles.length == 0">
+    </div>
+    <mat-divider></mat-divider>
+    <div fxLayout="column" fxLayoutGap="1em">
+        <div fxLayout="column" fxLayoutGap="0.3em">
+            <span class="xLargeText">Reset Application</span>
+            <span>This is permanent - all app data will be deleted but your files will remain. The server will
+                shut down and will need to be restarted manually.</span>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="center center">
+            <button mat-button color="warn" (click)="reset()">RESET</button>
+        </div>
+    </div>
+    <mat-expansion-panel *ngIf="ignoredFiles.length > 0">
         <mat-expansion-panel-header>
-            <mat-panel-title>Ignored Files<span *ngIf="ignoredFiles.length > 0">&nbsp;({{ignoredFiles.length}})</span>
+            <mat-panel-title>Ignored Files
             </mat-panel-title>
-            <mat-panel-description *ngIf="ignoredFiles.length > 0">
+            <mat-panel-description>
                 Expand to view
             </mat-panel-description>
         </mat-expansion-panel-header>
@@ -31,12 +38,11 @@
             </div>
         </div>
     </mat-expansion-panel>
-    <mat-expansion-panel [disabled]="invalidThumbnailFiles.length == 0">
+    <mat-expansion-panel *ngIf="invalidThumbnailFiles.length > 0">
         <mat-expansion-panel-header>
-            <mat-panel-title>Files with Invalid Thumbnails<span
-                    *ngIf="invalidThumbnailFiles.length > 0">&nbsp;({{invalidThumbnailFiles.length}})</span>
+            <mat-panel-title>Files with Invalid Thumbnails
             </mat-panel-title>
-            <mat-panel-description *ngIf="invalidThumbnailFiles.length > 0">
+            <mat-panel-description>
                 Expand to view
             </mat-panel-description>
         </mat-expansion-panel-header>
