@@ -22,7 +22,6 @@ import { MatSelectModule } from '@angular/material/select'
 import { HeaderComponent } from './header/header.component'
 import { ConfigComponent } from './config/config.component'
 import { SingleItemComponent } from './single-item/single-item.component'
-import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { MatSliderModule } from '@angular/material/slider'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatExpansionModule } from '@angular/material/expansion'
@@ -55,7 +54,6 @@ import { MatProgressBarModule } from '@angular/material/progress-bar'
     MatTooltipModule,
     MatToolbarModule,
     MatSelectModule,
-    InfiniteScrollModule,
     MatSliderModule,
     FormsModule,
     MatDialogModule,
